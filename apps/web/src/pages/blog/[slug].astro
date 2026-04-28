@@ -1,0 +1,39 @@
+---
+import { getCollection, render } from "astro:content";
+import SiteShell from "../../layouts/SiteShell.astro";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+
+  return posts
+    .filter((post) => !post.data.draft)
+    .map((post) => ({
+      params: { slug: post.slug ?? post.id.replace(/\.(mdoc|mdx?)$/, "") },
+      props: { post }
+    }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const formattedDate = new Intl.DateTimeFormat("zh-CN", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit"
+}).format(post.data.pubDate);
+---
+
+<SiteShell title={`${post.data.title} | Yoryon`} description={post.data.description} activeNav="thinking">
+  <main class="post-main container">
+    <article class="post-shell reveal">
+      <a class="back-link" href="/blog/">← 返回 Thinking</a>
+      <header class="post-header">
+        <p class="post-meta">{post.data.category} · {formattedDate} · {post.data.readingTime}</p>
+        <h1>{post.data.title}</h1>
+        <p>{post.data.description}</p>
+      </header>
+      <div class="post-content">
+        <Content />
+      </div>
+    </article>
+  </main>
+</SiteShell>

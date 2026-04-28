@@ -1,0 +1,65 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  activeNav?: "home" | "about" | "thinking" | "projects" | "contact";
+  bodyClass?: string;
+}
+
+const { title, description, activeNav, bodyClass } = Astro.props;
+const isHome = activeNav === "home";
+
+const navItems = [
+  { id: "home", label: "Home", homeHref: "#home", siteHref: "/#home" },
+  { id: "about", label: "About", homeHref: "#about", siteHref: "/#about" },
+  { id: "thinking", label: "Thinking", homeHref: "#thinking", siteHref: "/blog/" },
+  { id: "projects", label: "Projects", homeHref: "#projects", siteHref: "/#projects" },
+  { id: "contact", label: "Contact", homeHref: "#contact", siteHref: "/#contact" }
+];
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body class={bodyClass}>
+    <header class="site-header" id="top">
+      <div class="container header-inner">
+        <a class="brand" href={isHome ? "#home" : "/#home"}>Yoryon</a>
+        <button type="button" class="nav-toggle" id="nav-toggle" aria-controls="site-nav" aria-expanded="false" aria-label="Open menu">
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+        </button>
+        <nav class="nav" id="site-nav" aria-label="主导航">
+          {navItems.map((item) => (
+            <a href={isHome ? item.homeHref : item.siteHref} class:list={["nav-link", { "is-active": activeNav === item.id }]}>
+              {item.label}
+            </a>
+          ))}
+        </nav>
+      </div>
+    </header>
+
+    <slot />
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p>© 2024 Yoryon. All rights reserved.</p>
+        <nav class="footer-nav" aria-label="页脚导航">
+          {navItems.map((item) => (
+            <a href={isHome ? item.homeHref : item.siteHref}>{item.label}</a>
+          ))}
+        </nav>
+      </div>
+    </footer>
+
+    <script src="/js/script.js" defer></script>
+  </body>
+</html>

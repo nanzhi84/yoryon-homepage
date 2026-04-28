@@ -1,0 +1,124 @@
+---
+import { getCollection } from "astro:content";
+import SiteShell from "../layouts/SiteShell.astro";
+
+const getEntrySlug = (entry) => entry.slug ?? entry.id.replace(/\.(mdoc|mdx?)$/, "");
+const formatDate = (date) => new Intl.DateTimeFormat("zh-CN", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit"
+}).format(date);
+
+const recentPosts = (await getCollection("blog"))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 5);
+
+const projects = (await getCollection("projects"))
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<SiteShell
+  title="Yoryon | Personal Homepage"
+  description="Yoryon 的个人主页，记录产品、思考、成长与项目实践。"
+  activeNav="home"
+>
+  <main>
+    <section class="hero" id="home" aria-label="首页介绍">
+      <div class="hero-media" aria-hidden="true">
+        <img src="/assets/home-workspace-minimal.png" alt="" />
+      </div>
+      <div class="container hero-inner">
+        <div class="hero-copy reveal">
+        <h1>Yoryon</h1>
+          <p class="hero-desc">关注产品思考、写作与成长，在创造与复盘中持续迭代自己。</p>
+          <div class="hero-index" aria-label="主页入口">
+            <a href="#thinking"><span>01</span><strong>Thinking / 写作</strong><em>→</em></a>
+            <a href="#projects"><span>02</span><strong>Projects / 项目</strong><em>→</em></a>
+          </div>
+          <p class="hero-contact">
+            <a href="#contact">Contact →</a>
+            <span>或发送邮件至</span>
+            <a href="mailto:yoryon@outlook.com">yoryon@outlook.com</a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="about container section" id="about">
+      <div class="section-aside reveal">
+        <h2>About</h2>
+        <p>关于我</p>
+      </div>
+      <div class="about-content reveal reveal-delay">
+        <p>我叫 Yoryon，一名在广州求学的学生。</p>
+        <p>对产品与系统化思考充满兴趣，喜欢把想法落地成可用的东西，并通过写作沉淀认知、记录成长。</p>
+        <p>目前专注于产品设计、开发与个人成长的长期实践。</p>
+        <dl class="fact-list">
+          <div><dt>身份</dt><dd>学生 · 广州</dd></div>
+          <div><dt>关注</dt><dd>产品思考、写作、成长、项目</dd></div>
+          <div><dt>方式</dt><dd>观察 · 思考 · 实践 · 复盘</dd></div>
+          <div><dt>工具</dt><dd>TypeScript、Astro、Node.js、SQLite、Git</dd></div>
+          <div><dt>邮箱</dt><dd><a href="mailto:yoryon@outlook.com">yoryon@outlook.com</a></dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="container section home-thinking" id="thinking">
+      <div class="section-heading reveal">
+        <div>
+          <h2>Latest Thinking</h2>
+          <p>最近的思考与写作</p>
+        </div>
+        <a href="/blog/" class="text-link">查看全部文章 →</a>
+      </div>
+
+      <div class="article-list">
+        {recentPosts.map((post, index) => (
+          <a class:list={["article-row", "reveal", { "reveal-delay-2": index === 1, "reveal-delay-3": index === 2 }]} href={`/blog/${getEntrySlug(post)}/`}>
+            <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+            <article>
+                <h3>{post.data.title}</h3>
+                <p>{post.data.description}</p>
+            </article>
+            <span aria-hidden="true">→</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="container section" id="projects">
+      <div class="section-heading reveal">
+        <div>
+          <h2>Selected Projects</h2>
+          <p>精选项目</p>
+        </div>
+        <a href="#projects" class="text-link">查看全部项目 →</a>
+      </div>
+      <div class="project-list">
+        {projects.map((project, index) => (
+          <a class:list={["project-row", "reveal", { "reveal-delay-2": index === 1, "reveal-delay-3": index === 2 }]} href={`/projects/${getEntrySlug(project)}/`}>
+            <span class="project-number">{String(index + 1).padStart(2, "0")}</span>
+            <article>
+              <h3>{project.data.title}</h3>
+              <p>{project.data.summary}</p>
+            </article>
+            <span class="project-stack">{project.data.stack}</span>
+            <span class="project-action">项目详情 →</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="container section footer-panel" id="contact">
+      <div class="section-aside reveal">
+        <h2>Contact</h2>
+        <p>联系我</p>
+      </div>
+      <div class="contact-content reveal reveal-delay">
+        <p>有想法、合作或交流，欢迎通过邮件联系我。</p>
+        <a href="mailto:yoryon@outlook.com">yoryon@outlook.com</a>
+      </div>
+    </section>
+  </main>
+</SiteShell>

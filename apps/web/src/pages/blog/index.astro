@@ -1,0 +1,52 @@
+---
+import { getCollection } from "astro:content";
+import SiteShell from "../../layouts/SiteShell.astro";
+
+const getPostSlug = (post) => post.slug ?? post.id.replace(/\.(mdoc|mdx?)$/, "");
+const posts = (await getCollection("blog"))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const formatDate = (date) => new Intl.DateTimeFormat("zh-CN", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit"
+}).format(date);
+---
+
+<SiteShell
+  title="Thinking | Yoryon"
+  description="Yoryon 的博客与思考页面，记录产品、成长、写作和复盘。"
+  activeNav="thinking"
+>
+  <main class="blog-main">
+    <section class="archive-hero container section">
+      <div class="archive-heading reveal">
+        <a class="back-link" href="/#thinking">← 返回首页</a>
+        <h1>Thinking</h1>
+        <p>记录产品观察、成长复盘和还在形成中的判断。</p>
+      </div>
+    </section>
+
+    <section class="container section" id="latest">
+      <div class="section-heading reveal">
+        <div>
+          <h2>All notes</h2>
+          <p>全部文章</p>
+        </div>
+      </div>
+      <div class="article-list">
+        {posts.map((post, index) => (
+          <a class:list={["article-row", "reveal", { "reveal-delay-2": index === 1, "reveal-delay-3": index === 2 }]} href={`/blog/${getPostSlug(post)}/`}>
+            <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+            <article>
+              <h3>{post.data.title}</h3>
+              <p>{post.data.description}</p>
+            </article>
+            <span aria-hidden="true">→</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  </main>
+</SiteShell>

@@ -1,0 +1,16 @@
+{
+  "name": "yoryon-homepage",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @yoryon/web",
+    "dev:web": "npm run dev -w @yoryon/web",
+    "dev:api": "npm run dev -w @yoryon/api",
+    "build": "npm run build -w @yoryon/web",
+    "preview": "npm run preview -w @yoryon/web"
+  }
+}

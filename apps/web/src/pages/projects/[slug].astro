@@ -1,0 +1,63 @@
+---
+import SiteShell from "../../layouts/SiteShell.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const projects = (await getCollection("projects"))
+    .sort((a, b) => a.data.order - b.data.order);
+  const toSlug = (project) => project.slug ?? project.id.replace(/\.(mdoc|mdx?)$/, "");
+
+  return projects.map((project, index) => ({
+    params: { slug: toSlug(project) },
+    props: {
+      project,
+      previousProject: projects[(index - 1 + projects.length) % projects.length],
+      previousSlug: toSlug(projects[(index - 1 + projects.length) % projects.length]),
+      nextProject: projects[(index + 1) % projects.length],
+      nextSlug: toSlug(projects[(index + 1) % projects.length])
+    }
+  }));
+}
+
+const { project, previousProject, previousSlug, nextProject, nextSlug } = Astro.props;
+const { Content } = await render(project);
+const hasProjectContent = typeof project.body === "string" && project.body.trim().length > 0;
+---
+
+<SiteShell title={`${project.data.title} | Yoryon`} description={project.data.summary} activeNav="projects">
+  <main class="project-main container">
+    <article class="project-detail reveal">
+      <a class="back-link" href="/#projects">← 返回 Projects</a>
+
+      <header class="project-detail-header">
+        <p class="section-label">Project</p>
+        <h1>{project.data.title}</h1>
+        <p>{project.data.summary}</p>
+      </header>
+
+      <dl class="project-meta-list" aria-label="项目信息">
+        <div><dt>角色</dt><dd>{project.data.role}</dd></div>
+        <div><dt>时间</dt><dd>{project.data.period}</dd></div>
+        <div><dt>类型</dt><dd>{project.data.type}</dd></div>
+        <div><dt>平台</dt><dd>{project.data.platform}</dd></div>
+        <div><dt>技术</dt><dd>{project.data.stack}</dd></div>
+      </dl>
+
+      {hasProjectContent ? (
+        <section class="post-content project-content" aria-label="项目详情">
+          <Content />
+        </section>
+      ) : (
+        <section class="project-placeholder" aria-label="项目详情待补充">
+          <h2>项目详情待补充</h2>
+          <p>这里先保留为极简结构，后续可以按你的项目设计逐步加入研究过程、页面展示和复盘内容。</p>
+        </section>
+      )}
+
+      <nav class="project-pager" aria-label="项目切换">
+        <a href={`/projects/${previousSlug}/`}>← {previousProject.data.title}</a>
+        <a href={`/projects/${nextSlug}/`}>{nextProject.data.title} →</a>
+      </nav>
+    </article>
+  </main>
+</SiteShell>

@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "product-sense-in-daily-life",
+    "title": "从日常体验里训练产品感",
+    "description": "把排队、预约、下单这些普通场景当成观察样本，练习看见真实需求和约束。",
+    "category": "Product",
+    "pubDate": "2026-04-20",
+    "tags": ["产品", "观察", "体验"]
+  },
+  {
+    "slug": "weekly-review-system",
+    "title": "周复盘不应该只是总结",
+    "description": "复盘真正有用的部分，是把模糊感受变成下一周可以执行的调整。",
+    "category": "Growth",
+    "pubDate": "2026-04-12",
+    "tags": ["成长", "复盘", "系统"]
+  },
+  {
+    "slug": "writing-as-thinking",
+    "title": "写作是把想法固定下来",
+    "description": "很多想法在脑子里看似清楚，写下来之后才会露出断点。",
+    "category": "Writing",
+    "pubDate": "2026-04-02",
+    "tags": ["写作", "思考", "表达"]
+  }
+]
