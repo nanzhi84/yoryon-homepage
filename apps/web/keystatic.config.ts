@@ -50,7 +50,8 @@ export default config({
           defaultValue: false
         }),
         content: fields.markdoc({
-          label: "Content"
+          label: "Content",
+          extension: "md"
         })
       }
     }),
@@ -98,7 +99,8 @@ export default config({
         }),
         tags: tagsField,
         content: fields.markdoc({
-          label: "Project detail"
+          label: "Project detail",
+          extension: "md"
         })
       }
     })

@@ -1,13 +1,22 @@
 import { defineConfig } from "astro/config";
 import markdoc from "@astrojs/markdoc";
-import node from "@astrojs/node";
 import react from "@astrojs/react";
 import keystatic from "@keystatic/astro";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+
+const shouldMountKeystatic = process.env.SKIP_KEYSTATIC !== "true";
 
 export default defineConfig({
   site: "https://yoryon.dev",
-  adapter: node({
-    mode: "standalone"
-  }),
-  integrations: [react(), markdoc(), keystatic()]
+  output: "static",
+  markdown: {
+    remarkPlugins: [remarkMath],
+    rehypePlugins: [rehypeKatex]
+  },
+  integrations: [
+    react(),
+    markdoc(),
+    ...(shouldMountKeystatic ? [keystatic()] : [])
+  ]
 });

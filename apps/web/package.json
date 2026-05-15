@@ -5,17 +5,23 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev --host 127.0.0.1 --port 8000",
-    "build": "astro build",
+    "build": "node scripts/build-static.mjs",
+    "images:convert": "node scripts/convert-post-images.mjs --apply",
     "preview": "astro preview --host 127.0.0.1 --port 8000"
   },
   "dependencies": {
     "@astrojs/markdoc": "^1.0.4",
-    "@astrojs/node": "^10.0.6",
     "@astrojs/react": "^5.0.4",
     "@keystatic/astro": "^5.0.6",
     "@keystatic/core": "^0.5.50",
     "astro": "^6.1.9",
+    "katex": "^0.16.45",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5"
   }
 }

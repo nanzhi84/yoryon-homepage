@@ -23,10 +23,20 @@ const projects = (await getCollection("projects"))
   description="Yoryon 的个人主页，记录产品、思考、成长与项目实践。"
   activeNav="home"
 >
-  <main>
+  <main class="home-main">
     <section class="hero" id="home" aria-label="首页介绍">
       <div class="hero-media" aria-hidden="true">
-        <img src="/assets/home-workspace-minimal.png" alt="" />
+        <picture>
+          <source srcset="/assets/home-workspace-minimal.webp" type="image/webp" />
+          <img
+            src="/assets/home-workspace-minimal.png"
+            alt=""
+            width="1536"
+            height="1024"
+            decoding="async"
+            fetchpriority="high"
+          />
+        </picture>
       </div>
       <div class="container hero-inner">
         <div class="hero-copy reveal">
@@ -39,7 +49,7 @@ const projects = (await getCollection("projects"))
           <p class="hero-contact">
             <a href="#contact">Contact →</a>
             <span>或发送邮件至</span>
-            <a href="mailto:yoryon@outlook.com">yoryon@outlook.com</a>
+            <a href="mailto:zhouyangyang@bupt.edu.cn">zhouyangyang@bupt.edu.cn</a>
           </p>
         </div>
       </div>
@@ -51,15 +61,15 @@ const projects = (await getCollection("projects"))
         <p>关于我</p>
       </div>
       <div class="about-content reveal reveal-delay">
-        <p>我叫 Yoryon，一名在广州求学的学生。</p>
-        <p>对产品与系统化思考充满兴趣，喜欢把想法落地成可用的东西，并通过写作沉淀认知、记录成长。</p>
-        <p>目前专注于产品设计、开发与个人成长的长期实践。</p>
+        <p>我叫 Yoryon，目前在北京邮电大学读本科，专业是信息与计算科学。</p>
+        <p>关注 AI 产品方向，喜欢把 LLM 应用、Agent 工作流和模型评测这些事拆解清楚再落地成产品，并通过写作沉淀认知、记录成长。</p>
+        <p>正在做的事：从用户场景、机制设计到工程协作，把 AI 能力跑成真实可用的产品。</p>
         <dl class="fact-list">
-          <div><dt>身份</dt><dd>学生 · 广州</dd></div>
-          <div><dt>关注</dt><dd>产品思考、写作、成长、项目</dd></div>
+          <div><dt>身份</dt><dd>北京邮电大学 在读 · 信息与计算科学</dd></div>
+          <div><dt>方向</dt><dd>AI 产品 · LLM 应用 · Agent 工作流 · 模型评测</dd></div>
           <div><dt>方式</dt><dd>观察 · 思考 · 实践 · 复盘</dd></div>
-          <div><dt>工具</dt><dd>TypeScript、Astro、Node.js、SQLite、Git</dd></div>
-          <div><dt>邮箱</dt><dd><a href="mailto:yoryon@outlook.com">yoryon@outlook.com</a></dd></div>
+          <div><dt>工具</dt><dd>Python、TypeScript、Next.js、NestJS、PostgreSQL、PyTorch</dd></div>
+          <div><dt>邮箱</dt><dd><a href="mailto:zhouyangyang@bupt.edu.cn">zhouyangyang@bupt.edu.cn</a></dd></div>
         </dl>
       </div>
     </section>
@@ -116,8 +126,17 @@ const projects = (await getCollection("projects"))
         <p>联系我</p>
       </div>
       <div class="contact-content reveal reveal-delay">
-        <p>有想法、合作或交流，欢迎通过邮件联系我。</p>
-        <a href="mailto:yoryon@outlook.com">yoryon@outlook.com</a>
+        <p>有想法、合作或交流，欢迎通过下面任一方式联系我。</p>
+        <dl class="fact-list contact-list">
+          <div>
+            <dt>Email</dt>
+            <dd><a href="mailto:zhouyangyang@bupt.edu.cn">zhouyangyang@bupt.edu.cn</a></dd>
+          </div>
+          <div>
+            <dt>GitHub</dt>
+            <dd><a href="https://github.com/nanzhi84" target="_blank" rel="noopener noreferrer">github.com/nanzhi84</a></dd>
+          </div>
+        </dl>
       </div>
     </section>
   </main>
