@@ -8,7 +8,7 @@ import rehypeKatex from "rehype-katex";
 const shouldMountKeystatic = process.env.SKIP_KEYSTATIC !== "true";
 
 export default defineConfig({
-  site: "https://yoryon.dev",
+  site: "https://yoryon.com",
   output: "static",
   markdown: {
     remarkPlugins: [remarkMath],
