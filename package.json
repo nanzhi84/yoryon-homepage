@@ -9,8 +9,11 @@
   "scripts": {
     "dev": "npm run dev -w @yoryon/web",
     "dev:web": "npm run dev -w @yoryon/web",
+    "dev:gomoku": "npm run dev -w @yoryon/gomoku",
+    "dev:digit-ocr": "npm run dev -w @yoryon/digit-ocr",
     "dev:api": "npm run dev -w @yoryon/api",
-    "build": "npm run build -w @yoryon/web",
+    "build": "npm run build -w @yoryon/web && npm run build -w @yoryon/gomoku && npm run build -w @yoryon/digit-ocr",
+    "test:gomoku": "npm test -w @yoryon/gomoku",
     "preview": "npm run preview -w @yoryon/web"
   }
 }
