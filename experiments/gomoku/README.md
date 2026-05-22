@@ -26,4 +26,4 @@ npm run build
 
 ## 部署
 
-在 `yoryon_homepage` 根目录执行构建后，游戏会输出到 `apps/web/dist/gomoku`，随主站一起发布到 `https://yoryon.com/gomoku/`。
+在 `yoryon_homepage` 根目录执行构建后，游戏会输出到 `web/dist/gomoku`，随主站一起发布到 `https://yoryon.com/gomoku/`。

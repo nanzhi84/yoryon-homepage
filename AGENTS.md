@@ -42,23 +42,41 @@ When an agent edit goes wrong:
 
 ## 3. Project layout
 
-- `apps/web/` — Astro 5 site
+This is an npm workspaces monorepo. Deployment is GitHub Pages (static), domain `yoryon.com`.
+
+- `web/` — Astro 5 site (the main site + blog + project list). This is the repo's primary app.
   - `src/content.config.ts` — Astro content collection schema (source of truth for frontmatter fields).
   - `src/content/blog/*.md` — Blog posts.
   - `src/content/projects/*.md` — Project entries.
   - `src/pages/` — Astro pages; `index.astro` is the home, `[slug].astro` files render details.
   - `src/layouts/SiteShell.astro` — Header / footer shell used by every page.
   - `public/css/styles.css` — Hand-written CSS, no Tailwind.
-  - `public/pages/project-*.html` — Legacy redirect HTML for old slugs.
-  - `keystatic.config.ts` — Keystatic CMS schema; keep it in sync with `content.config.ts` when adding fields.
-- `public/assets/` — Image assets; prefer `.webp` with `.png` fallback.
+  - `public/assets/` — Image assets; prefer `.webp` with `.png` fallback.
+  - `public/CNAME` — Custom domain; copied into `web/dist` on build.
+  - `keystatic.config.ts` — Keystatic CMS schema; keep it in sync with `content.config.ts`.
+- `experiments/<name>/` — Small standalone Vite apps mounted under the main site at `yoryon.com/<name>/`.
+  - **Naming is three-way locked:** dir `experiments/<name>` === package `@yoryon/<name>` === path `/<name>/`.
+  - Each `vite.config.ts` reads `EXP_BASE` / `EXP_OUTDIR` from env; do NOT hardcode `base`/`outDir`.
+  - `experiments/_template/` is the scaffold; it starts with `_` so the build skips it.
+- `scripts/build-experiments.mjs` — Discovers `experiments/*` (skips `_`/`.`-prefixed) and builds each into `web/dist/<name>`.
+- Build order is fixed: `npm run build` runs the Astro build first (which empties `web/dist`), then injects experiments.
+
+### Adding a new experiment (zero-friction)
+
+```bash
+cp -r experiments/_template experiments/<name>
+# set "name" to "@yoryon/<name>" in experiments/<name>/package.json
+npm install
+npm run dev -w @yoryon/<name>   # develop (base is "/")
+# `npm run build` then auto-mounts it at yoryon.com/<name>/
+```
 
 ## 4. Content rules
 
 - Project frontmatter required by `content.config.ts`: `title`, `summary`, `role`, `period`, `type`, `platform`, `stack`, `order`. Optional: `tags` (string array).
 - `order` is the sort key on the home page — lower comes first. When adding a project, renumber so there are no duplicates.
 - Blog `pubDate` and `updatedDate` must be ISO-parseable. `draft: true` hides a post.
-- When you delete a project markdown file, also delete the matching `apps/web/public/pages/project-<slug>.html` redirect, otherwise it becomes a 404 trap.
+- When you delete a project markdown file, also remove any legacy redirect HTML under `web/public/pages/project-<slug>.html` if it still exists, otherwise it becomes a 404 trap.
 - Personal bio / contact information should be sourced from the user's resume PDF rather than invented. Ask the user before changing factual claims (school, location, project numbers, etc.).
 
 ## 5. Style
@@ -76,7 +94,7 @@ When an agent edit goes wrong:
 
 The user's global "no document files" rule (forbidding agents to add `.md` / `.docx` / `.pdf` / `.txt` to a repo) **does not apply here**. This repo is a content site whose primary deliverables are markdown documents (blog posts, project entries, READMEs, this file). Agents may freely add, edit, and commit:
 
-- Markdown content under `apps/web/src/content/blog/` and `apps/web/src/content/projects/`
+- Markdown content under `web/src/content/blog/` and `web/src/content/projects/`
 - Repo-level docs at the project root (`AGENTS.md`, `README.md`, etc.)
 - Any other documentation file the task naturally requires
 
