@@ -34,7 +34,7 @@ export default function App() {
       try {
         const processed = await preprocessFile(file, meta.height, meta.width);
         setPreprocessed(processed);
-        const prediction = await recognizeDigitString(processed.tensor, meta);
+        const prediction = await recognizeDigitString(processed.tensor, meta, processed.estimatedLength);
         setResult(prediction);
         setStatus("ready");
       } catch (err) {
@@ -127,4 +127,3 @@ export default function App() {
     </main>
   );
 }
-

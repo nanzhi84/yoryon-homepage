@@ -3,6 +3,7 @@ export type PreprocessResult = {
   sourceUrl: string;
   modelPreviewUrl: string;
   cropLabel: string;
+  estimatedLength: number;
 };
 
 type Box = {
@@ -166,7 +167,52 @@ function fitToModel(source: HTMLCanvasElement, box: Box, height: number, width: 
   return canvas;
 }
 
-function canvasToTensor(canvas: HTMLCanvasElement): { tensor: Float32Array; previewUrl: string } {
+function estimateDigitCount(tensor: Float32Array, width: number, height: number): number {
+  const columns = new Float32Array(width);
+  let maxMass = 0;
+
+  for (let x = 0; x < width; x += 1) {
+    let mass = 0;
+    for (let y = 0; y < height; y += 1) {
+      mass += tensor[y * width + x];
+    }
+    columns[x] = mass;
+    maxMass = Math.max(maxMass, mass);
+  }
+
+  const active = Array.from(columns, (mass) => mass > Math.max(0.42, maxMass * 0.09));
+  const closed = [...active];
+  for (let x = 1; x < width - 1; x += 1) {
+    if (!closed[x] && active[x - 1] && active[x + 1]) {
+      closed[x] = true;
+    }
+  }
+
+  const runs: number[] = [];
+  let runWidth = 0;
+  let gapWidth = 0;
+  for (let x = 0; x < width; x += 1) {
+    if (closed[x]) {
+      if (gapWidth > 0 && gapWidth <= 2) {
+        runWidth += gapWidth;
+      } else if (gapWidth > 2 && runWidth >= 3) {
+        runs.push(runWidth);
+        runWidth = 0;
+      }
+      runWidth += 1;
+      gapWidth = 0;
+    } else if (runWidth > 0) {
+      gapWidth += 1;
+    }
+  }
+  if (runWidth >= 3) {
+    runs.push(runWidth);
+  }
+
+  return Math.round(clamp(runs.length, 1, 12));
+}
+
+function canvasToTensor(canvas: HTMLCanvasElement): { tensor: Float32Array; previewUrl: string; estimatedLength: number } {
   const gray = canvasToGrayImage(canvas);
   const { width, height } = gray;
   const integral = buildIntegral(gray.values, width, height);
@@ -198,7 +244,11 @@ function canvasToTensor(canvas: HTMLCanvasElement): { tensor: Float32Array; prev
   const previewCtx = previewCanvas.getContext("2d");
   if (!previewCtx) throw new Error("预览生成失败");
   previewCtx.putImageData(preview, 0, 0);
-  return { tensor, previewUrl: previewCanvas.toDataURL("image/png") };
+  return {
+    tensor,
+    previewUrl: previewCanvas.toDataURL("image/png"),
+    estimatedLength: estimateDigitCount(tensor, width, height)
+  };
 }
 
 export async function preprocessFile(file: File, height: number, width: number): Promise<PreprocessResult> {
@@ -207,11 +257,12 @@ export async function preprocessFile(file: File, height: number, width: number):
   const limited = drawLimited(image);
   const box = detectInkBox(limited);
   const fitted = fitToModel(limited, box, height, width);
-  const { tensor, previewUrl } = canvasToTensor(fitted);
+  const { tensor, previewUrl, estimatedLength } = canvasToTensor(fitted);
   return {
     tensor,
     sourceUrl,
     modelPreviewUrl: previewUrl,
-    cropLabel: `${Math.round(box.width)} x ${Math.round(box.height)}`
+    cropLabel: `${Math.round(box.width)} x ${Math.round(box.height)}`,
+    estimatedLength
   };
 }
