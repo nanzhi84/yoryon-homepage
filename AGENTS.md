@@ -71,6 +71,30 @@ npm run dev -w @yoryon/<name>   # develop (base is "/")
 # `npm run build` then auto-mounts it at yoryon.com/<name>/
 ```
 
+### Commands
+
+- `npm run dev` — run the main site (`@yoryon/web`). An experiment: `npm run dev -w @yoryon/<name>`.
+- `npm run build` — build everything into `web/dist` (main site first, then each experiment injected as a subdir).
+- `npm test -w @yoryon/gomoku` — run an experiment's tests.
+- `npm run preview` — preview the built main site.
+
+### Build & deploy flow
+
+`npm run build` has a fixed order (reversing it lets Astro wipe the experiment output):
+
+```
+astro build (web)             ->  generates & empties web/dist/ (CNAME copied from public/)
+scripts/build-experiments.mjs ->  for each experiments/<name> (skips _/. prefixed):
+    EXP_BASE=/<name>/  EXP_OUTDIR=web/dist/<name>  ->  npm run build -w @yoryon/<name>
+```
+
+Deployment is automatic via GitHub Actions (`.github/workflows/deploy.yml`):
+
+- Trigger: push to `main` (or manual `workflow_dispatch`).
+- Steps: `npm ci` -> `npm run build` -> upload `web/dist` artifact -> deploy to GitHub Pages.
+- Live at `https://yoryon.com` (custom domain via `web/public/CNAME`); experiments served at `/<name>/`.
+- **Pushing to `main` publishes the live site** — coordinate before pushing.
+
 ## 4. Content rules
 
 - Project frontmatter required by `content.config.ts`: `title`, `summary`, `role`, `period`, `type`, `platform`, `stack`, `order`. Optional: `tags` (string array).
