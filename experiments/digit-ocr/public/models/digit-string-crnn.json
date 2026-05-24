@@ -2,11 +2,11 @@
   "inputName": "image",
   "outputName": "logits",
   "height": 64,
-  "width": 320,
+  "width": 480,
   "channels": 1,
   "blankIndex": 0,
   "digits": "0123456789",
-  "maxLabelLength": 8,
+  "maxLabelLength": 10,
   "opset": 17,
-  "maxDiff": 7.62939453125e-06
+  "maxDiff": 5.7220458984375e-06
 }

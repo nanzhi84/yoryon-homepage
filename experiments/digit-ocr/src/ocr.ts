@@ -112,7 +112,12 @@ function updateBeam(map: Map<string, Beam>, text: string, blank: number, nonBlan
   map.set(text, beam);
 }
 
-function ctcBeamSearch(logits: Float32Array, dims: readonly number[], blankIndex: number): Candidate[] {
+function ctcBeamSearch(
+  logits: Float32Array,
+  dims: readonly number[],
+  blankIndex: number,
+  maxLength: number
+): Candidate[] {
   const time = dims[1];
   const classes = dims[2];
   const beamWidth = 80;
@@ -131,6 +136,7 @@ function ctcBeamSearch(logits: Float32Array, dims: readonly number[], blankIndex
         }
 
         const char = String(id - 1);
+        if (text.length >= maxLength) continue;
         const last = text.at(-1);
         if (char === last) {
           updateBeam(next, text, -Infinity, beam.nonBlank + prob);
@@ -182,6 +188,7 @@ function decode(
   logits: Float32Array,
   dims: readonly number[],
   blankIndex: number,
+  maxLength: number,
   expectedLength?: number
 ): Recognition {
   const started = performance.now();
@@ -201,7 +208,9 @@ function decode(
   }
 
   const greedyText = chars.join("");
-  const candidate = chooseCandidate(ctcBeamSearch(logits, dims, blankIndex), greedyText, expectedLength);
+  const cappedExpectedLength = expectedLength ? Math.min(expectedLength, maxLength) : undefined;
+  const candidates = ctcBeamSearch(logits, dims, blankIndex, maxLength);
+  const candidate = chooseCandidate(candidates, greedyText.slice(0, maxLength), cappedExpectedLength);
   const confidence = probs.length > 0 ? probs.reduce((sum, value) => sum + value, 0) / probs.length : 0;
   return { text: candidate.text, confidence, timeMs: performance.now() - started };
 }
@@ -216,6 +225,6 @@ export async function recognizeDigitString(
   const started = performance.now();
   const outputs = await session.run({ [meta.inputName]: input });
   const output = outputs[meta.outputName];
-  const decoded = decode(output.data as Float32Array, output.dims, meta.blankIndex, expectedLength);
+  const decoded = decode(output.data as Float32Array, output.dims, meta.blankIndex, meta.maxLabelLength, expectedLength);
   return { ...decoded, timeMs: performance.now() - started };
 }
