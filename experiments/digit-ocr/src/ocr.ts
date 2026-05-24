@@ -163,7 +163,8 @@ function decode(
   logits: Float32Array,
   dims: readonly number[],
   blankIndex: number,
-  maxLength: number
+  maxLength: number,
+  lengthHint?: number
 ): Recognition {
   const started = performance.now();
   const time = dims[1];
@@ -182,18 +183,26 @@ function decode(
   }
 
   const greedyText = chars.join("");
-  const candidates = ctcBeamSearch(logits, dims, blankIndex, maxLength);
-  const candidate = candidates[0] ?? { text: greedyText.slice(0, maxLength), score: 0 };
+  const decodeMaxLength = lengthHint ? Math.min(lengthHint, maxLength) : maxLength;
+  const candidates = ctcBeamSearch(logits, dims, blankIndex, decodeMaxLength);
+  const candidate =
+    (lengthHint ? candidates.find((item) => item.text.length === lengthHint) : candidates[0]) ??
+    candidates.find((item) => item.text.length > 0) ??
+    { text: greedyText.slice(0, decodeMaxLength), score: 0 };
   const confidence = probs.length > 0 ? probs.reduce((sum, value) => sum + value, 0) / probs.length : 0;
   return { text: candidate.text, confidence, timeMs: performance.now() - started };
 }
 
-export async function recognizeDigitString(tensorData: Float32Array, meta: ModelMeta): Promise<Recognition> {
+export async function recognizeDigitString(
+  tensorData: Float32Array,
+  meta: ModelMeta,
+  lengthHint?: number
+): Promise<Recognition> {
   const session = await loadSession();
   const input = new ort.Tensor("float32", tensorData, [1, meta.channels, meta.height, meta.width]);
   const started = performance.now();
   const outputs = await session.run({ [meta.inputName]: input });
   const output = outputs[meta.outputName];
-  const decoded = decode(output.data as Float32Array, output.dims, meta.blankIndex, meta.maxLabelLength);
+  const decoded = decode(output.data as Float32Array, output.dims, meta.blankIndex, meta.maxLabelLength, lengthHint);
   return { ...decoded, timeMs: performance.now() - started };
 }

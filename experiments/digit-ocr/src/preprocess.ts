@@ -3,6 +3,7 @@ export type PreprocessResult = {
   sourceUrl: string;
   modelPreviewUrl: string;
   cropLabel: string;
+  lengthHint?: number;
 };
 
 type Box = {
@@ -287,6 +288,67 @@ function canvasToTensor(canvas: HTMLCanvasElement): { tensor: Float32Array; prev
   return { tensor, previewUrl: previewCanvas.toDataURL("image/png") };
 }
 
+function countColumnGroups(tensor: Float32Array, height: number, width: number): number {
+  const sums = new Float32Array(width);
+  let max = 0;
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const value = tensor[y * width + x];
+      sums[x] += value;
+      max = Math.max(max, sums[x]);
+    }
+  }
+
+  if (max <= 0) return 0;
+
+  const threshold = Math.max(0.45, max * 0.045);
+  let groups = 0;
+  let run = 0;
+
+  for (let x = 0; x < width; x += 1) {
+    if (sums[x] > threshold) {
+      run += 1;
+      continue;
+    }
+
+    if (run >= 2) groups += 1;
+    run = 0;
+  }
+
+  if (run >= 2) groups += 1;
+  return groups;
+}
+
+function tensorInkWidth(tensor: Float32Array, height: number, width: number): number {
+  let minX = width;
+  let maxX = -1;
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      if (tensor[y * width + x] > 0.08) {
+        minX = Math.min(minX, x);
+        maxX = Math.max(maxX, x);
+      }
+    }
+  }
+
+  return maxX >= minX ? maxX - minX + 1 : 0;
+}
+
+function inferLengthHint(box: Box, tensor: Float32Array, height: number, width: number): number | undefined {
+  const sourceAspect = box.width / Math.max(1, box.height);
+  const inkWidth = tensorInkWidth(tensor, height, width);
+  const compactInModelInput = inkWidth > 0 && inkWidth / width <= 0.24;
+  const singleColumnGroup = countColumnGroups(tensor, height, width) === 1;
+
+  if (sourceAspect <= 1.18 && compactInModelInput && singleColumnGroup) {
+    return 1;
+  }
+
+  return undefined;
+}
+
 export async function preprocessFile(file: File, height: number, width: number): Promise<PreprocessResult> {
   const image = await loadImage(file);
   const sourceUrl = image.src;
@@ -298,6 +360,7 @@ export async function preprocessFile(file: File, height: number, width: number):
     tensor,
     sourceUrl,
     modelPreviewUrl: previewUrl,
-    cropLabel: `${Math.round(box.width)} x ${Math.round(box.height)}`
+    cropLabel: `${Math.round(box.width)} x ${Math.round(box.height)}`,
+    lengthHint: inferLengthHint(box, tensor, height, width)
   };
 }
