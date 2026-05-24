@@ -14,7 +14,7 @@ readingTime: 10 min read
 featured: false
 draft: false
 ---
-应老师要求，我写了个纯前端的五子棋。没有后端，没有数据库，AI 完全在浏览器里思考：你落一子，它在你的设备上算一会儿，然后回一手。地址在 https://yoryon.com/gomoku。
+应老师要求，我写了个纯前端的五子棋。没有后端，没有数据库，AI 完全在浏览器里思考：你落一子，它在你的设备上算一会儿，然后回一手。地址在 https://yoryon.com/gomoku
 
 它用的不是神经网络，是经典的博弈搜索：**Minimax 加 Alpha-Beta 剪枝**，再配一个手写的棋型评估函数。整套东西几百行 TypeScript，跑在一个 Web Worker 里。
 
