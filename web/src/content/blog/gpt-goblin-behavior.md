@@ -3,6 +3,7 @@ title: "GPT 为什么喜欢哥布林"
 description: "从一个异常口癖看 RLHF、人格提示词和训练数据回收如何放大模型行为偏差。"
 pubDate: 2026-05-01
 createdAt: 2026-05-01T02:18:53+08:00
+updatedDate: 2026-05-17
 category: Tech
 tags:
   - "AI"

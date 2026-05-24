@@ -3,6 +3,7 @@ title: "AI 时代最重要的技能"
 description: "AI Coding 时代，Git 和 worktree 正在变成重要的版本控制能力。"
 pubDate: 2026-04-28
 createdAt: 2026-04-28T03:18:55+08:00
+updatedDate: 2026-04-28
 category: Tech
 tags:
   - "AI"
