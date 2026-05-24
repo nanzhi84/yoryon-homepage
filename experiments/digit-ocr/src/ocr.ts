@@ -120,7 +120,7 @@ function ctcBeamSearch(
 ): Candidate[] {
   const time = dims[1];
   const classes = dims[2];
-  const beamWidth = 80;
+  const beamWidth = 16;
   let beams = new Map<string, Beam>([["", { blank: 0, nonBlank: -Infinity }]]);
 
   for (let t = 0; t < time; t += 1) {
@@ -159,37 +159,11 @@ function ctcBeamSearch(
     .sort((a, b) => b.score - a.score);
 }
 
-function chooseCandidate(candidates: Candidate[], greedyText: string, expectedLength?: number): Candidate {
-  const best = candidates[0] ?? { text: greedyText, score: 0 };
-  if (!expectedLength || expectedLength < 2) {
-    return best;
-  }
-
-  const exact = candidates.find((candidate) => candidate.text.length === expectedLength);
-  if (!exact) {
-    return best;
-  }
-
-  const closeEnough = best.score - exact.score < 24;
-  if (greedyText.length !== expectedLength && closeEnough) {
-    return exact;
-  }
-
-  return [...candidates]
-    .slice(0, 20)
-    .sort((a, b) => {
-      const scoreA = a.score - Math.abs(a.text.length - expectedLength) * 4.5;
-      const scoreB = b.score - Math.abs(b.text.length - expectedLength) * 4.5;
-      return scoreB - scoreA;
-    })[0] ?? best;
-}
-
 function decode(
   logits: Float32Array,
   dims: readonly number[],
   blankIndex: number,
-  maxLength: number,
-  expectedLength?: number
+  maxLength: number
 ): Recognition {
   const started = performance.now();
   const time = dims[1];
@@ -208,23 +182,18 @@ function decode(
   }
 
   const greedyText = chars.join("");
-  const cappedExpectedLength = expectedLength ? Math.min(expectedLength, maxLength) : undefined;
   const candidates = ctcBeamSearch(logits, dims, blankIndex, maxLength);
-  const candidate = chooseCandidate(candidates, greedyText.slice(0, maxLength), cappedExpectedLength);
+  const candidate = candidates[0] ?? { text: greedyText.slice(0, maxLength), score: 0 };
   const confidence = probs.length > 0 ? probs.reduce((sum, value) => sum + value, 0) / probs.length : 0;
   return { text: candidate.text, confidence, timeMs: performance.now() - started };
 }
 
-export async function recognizeDigitString(
-  tensorData: Float32Array,
-  meta: ModelMeta,
-  expectedLength?: number
-): Promise<Recognition> {
+export async function recognizeDigitString(tensorData: Float32Array, meta: ModelMeta): Promise<Recognition> {
   const session = await loadSession();
   const input = new ort.Tensor("float32", tensorData, [1, meta.channels, meta.height, meta.width]);
   const started = performance.now();
   const outputs = await session.run({ [meta.inputName]: input });
   const output = outputs[meta.outputName];
-  const decoded = decode(output.data as Float32Array, output.dims, meta.blankIndex, meta.maxLabelLength, expectedLength);
+  const decoded = decode(output.data as Float32Array, output.dims, meta.blankIndex, meta.maxLabelLength);
   return { ...decoded, timeMs: performance.now() - started };
 }
