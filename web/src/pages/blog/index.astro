@@ -12,6 +12,17 @@ const formatDate = (date) => new Intl.DateTimeFormat("zh-CN", {
   month: "2-digit",
   day: "2-digit"
 }).format(date);
+
+const groupedByYear = posts.reduce((groups, post) => {
+  const year = post.data.pubDate.getFullYear();
+  const last = groups[groups.length - 1];
+  if (last && last.year === year) {
+    last.posts.push(post);
+  } else {
+    groups.push({ year, posts: [post] });
+  }
+  return groups;
+}, []);
 ---
 
 <SiteShell
@@ -35,16 +46,28 @@ const formatDate = (date) => new Intl.DateTimeFormat("zh-CN", {
           <p>全部文章</p>
         </div>
       </div>
-      <div class="article-list">
-        {posts.map((post, index) => (
-          <a class:list={["article-row", "reveal", { "reveal-delay-2": index === 1, "reveal-delay-3": index === 2 }]} href={`/blog/${getPostSlug(post)}/`}>
-            <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
-            <article>
-              <h3>{post.data.title}</h3>
-              <p>{post.data.description}</p>
-            </article>
-            <span aria-hidden="true">→</span>
-          </a>
+      <div class="archive-groups">
+        {groupedByYear.map(({ year, posts: yearPosts }) => (
+          <div class="archive-year-group reveal">
+            <div class="archive-year" aria-hidden="true">{year}</div>
+            <div class="article-list">
+              {yearPosts.map((post) => (
+                <a class="article-row" href={`/blog/${getPostSlug(post)}/`}>
+                  <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+                  <article>
+                    <h3>{post.data.title}</h3>
+                    <p>{post.data.description}</p>
+                    {post.data.tags && post.data.tags.length > 0 && (
+                      <ul class="tag-list">
+                        {post.data.tags.slice(0, 4).map((tag) => <li>{tag}</li>)}
+                      </ul>
+                    )}
+                  </article>
+                  <span aria-hidden="true">→</span>
+                </a>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     </section>

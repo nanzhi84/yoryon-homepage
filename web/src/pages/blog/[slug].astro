@@ -35,6 +35,14 @@ const formattedDate = new Intl.DateTimeFormat("zh-CN", {
       <div class="post-content">
         <Content />
       </div>
+      {post.data.tags && post.data.tags.length > 0 && (
+        <footer class="post-footer">
+          <span class="post-footer-label">标签</span>
+          <ul class="tag-list">
+            {post.data.tags.map((tag) => <li>{tag}</li>)}
+          </ul>
+        </footer>
+      )}
     </article>
   </main>
 </SiteShell>
