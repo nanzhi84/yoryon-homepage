@@ -14,56 +14,45 @@ const recentPosts = (await getCollection("blog"))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
   .slice(0, 5);
 
+const [featuredPost, ...restPosts] = recentPosts;
+
 const projects = (await getCollection("projects"))
   .sort((a, b) => a.data.order - b.data.order);
 ---
 
 <SiteShell
   title="Yoryon | Personal Homepage"
-  description="Yoryon 的个人主页，记录产品、思考、成长与项目实践。"
+  description="Yoryon 的电影感个人主页，记录 AI 产品、写作、Agent 工作流与项目实践。"
   activeNav="home"
 >
   <main class="home-main">
     <section class="hero" id="home" aria-label="首页介绍">
       <div class="hero-media" aria-hidden="true">
-        <picture>
-          <source srcset="/assets/home-workspace-minimal.webp" type="image/webp" />
-          <img
-            src="/assets/home-workspace-minimal.png"
-            alt=""
-            width="1536"
-            height="1024"
-            decoding="async"
-            fetchpriority="high"
-          />
-        </picture>
+        <img src="/assets/cinematic-home-hero.png" alt="" width="1672" height="941"
+             decoding="async" fetchpriority="high" />
       </div>
+      <div class="hero-scrim" aria-hidden="true"></div>
       <div class="container hero-inner">
-        <div class="hero-copy reveal">
-        <h1>Yoryon</h1>
-          <p class="hero-desc">关注产品思考、写作与成长，在创造与复盘中持续迭代自己。</p>
-          <div class="hero-index" aria-label="主页入口">
-            <a href="#thinking"><span>01</span><strong>Thinking / 写作</strong><em>→</em></a>
-            <a href="#projects"><span>02</span><strong>Projects / 项目</strong><em>→</em></a>
+        <div class="hero-copy">
+          <p class="hero-role">Yoryon · AI 产品与 Agent 工作流</p>
+          <h1>把 AI 想法<br />拍成可用产品</h1>
+          <p class="hero-desc">我做 LLM 应用与 Agent 工作流。这里是我的项目片场与写作档案。</p>
+          <div class="hero-actions">
+            <a class="button-primary" href="#projects">查看精选项目</a>
+            <a class="button-secondary" href="#thinking">阅读技术文章</a>
           </div>
-          <p class="hero-contact">
-            <a href="#contact">Contact →</a>
-            <span>或发送邮件至</span>
-            <a href="mailto:zhouyangyang@bupt.edu.cn">zhouyangyang@bupt.edu.cn</a>
-          </p>
         </div>
       </div>
     </section>
 
     <section class="about container section" id="about">
       <div class="section-aside reveal">
-        <h2>About</h2>
-        <p>关于我</p>
+        <h2>创作者档案</h2>
       </div>
       <div class="about-content reveal reveal-delay">
-        <p>我叫 Yoryon，目前在北京邮电大学读本科，专业是信息与计算科学。</p>
-        <p>关注 AI 产品方向，喜欢把 LLM 应用、Agent 工作流和模型评测这些事拆解清楚再落地成产品，并通过写作沉淀认知、记录成长。</p>
-        <p>正在做的事：从用户场景、机制设计到工程协作，把 AI 能力跑成真实可用的产品。</p>
+        <p class="section-lead">我叫 Yoryon，目前在北京邮电大学读本科，专业是信息与计算科学。</p>
+        <p>我关注 AI 产品方向，喜欢把 LLM 应用、Agent 工作流和模型评测这些事拆解清楚，再落地成产品。</p>
+        <p>正在做的事：从用户场景、机制设计到工程协作，把 AI 能力跑成真实可用的体验，并通过写作沉淀认知、记录成长。</p>
         <dl class="fact-list">
           <div><dt>身份</dt><dd>北京邮电大学 在读 · 信息与计算科学</dd></div>
           <div><dt>方向</dt><dd>AI 产品 · LLM 应用 · Agent 工作流 · 模型评测</dd></div>
@@ -74,23 +63,29 @@ const projects = (await getCollection("projects"))
       </div>
     </section>
 
-    <section class="container section home-thinking" id="thinking">
+    <section class="container section" id="thinking">
       <div class="section-heading reveal">
-        <div>
-          <h2>Latest Thinking</h2>
-          <p>最近的思考与写作</p>
-        </div>
+        <h2>最近的思考与写作</h2>
         <a href="/blog/" class="text-link">查看全部文章 →</a>
       </div>
 
-      <div class="article-list">
-        {recentPosts.map((post, index) => (
-          <a class:list={["article-row", "reveal", { "reveal-delay-2": index === 1, "reveal-delay-3": index === 2 }]} href={`/blog/${getEntrySlug(post)}/`}>
+      {featuredPost && (
+        <a class="featured-post reveal" href={`/blog/${getEntrySlug(featuredPost)}/`}>
+          <time datetime={featuredPost.data.pubDate.toISOString()}>{formatDate(featuredPost.data.pubDate)}</time>
+          <h3>{featuredPost.data.title}</h3>
+          <p>{featuredPost.data.description}</p>
+          <span class="featured-action" aria-hidden="true">阅读 →</span>
+        </a>
+      )}
+
+      <div>
+        {restPosts.map((post, index) => (
+          <a class:list={["post-row", "reveal", { "reveal-delay-2": index === 0, "reveal-delay-3": index === 1 }]} href={`/blog/${getEntrySlug(post)}/`}>
             <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
-            <article>
-                <h3>{post.data.title}</h3>
-                <p>{post.data.description}</p>
-            </article>
+            <div>
+              <h3>{post.data.title}</h3>
+              <p>{post.data.description}</p>
+            </div>
             <span aria-hidden="true">→</span>
           </a>
         ))}
@@ -99,44 +94,32 @@ const projects = (await getCollection("projects"))
 
     <section class="container section" id="projects">
       <div class="section-heading reveal">
-        <div>
-          <h2>Selected Projects</h2>
-          <p>精选项目</p>
-        </div>
-        <a href="#projects" class="text-link">查看全部项目 →</a>
+        <h2>精选项目</h2>
+        <a href="#contact" class="text-link">聊聊合作或想法 →</a>
       </div>
       <div class="project-list">
         {projects.map((project, index) => (
           <a class:list={["project-row", "reveal", { "reveal-delay-2": index === 1, "reveal-delay-3": index === 2 }]} href={`/projects/${getEntrySlug(project)}/`}>
-            <span class="project-number">{String(index + 1).padStart(2, "0")}</span>
-            <article>
+            <span class="project-kicker">{project.data.type} / {project.data.platform}</span>
+            <div class="project-row-main">
               <h3>{project.data.title}</h3>
               <p>{project.data.summary}</p>
-            </article>
+            </div>
             <span class="project-stack">{project.data.stack}</span>
-            <span class="project-action">项目详情 →</span>
+            <span class="project-action" aria-hidden="true">→</span>
           </a>
         ))}
       </div>
     </section>
 
-    <section class="container section footer-panel" id="contact">
-      <div class="section-aside reveal">
-        <h2>Contact</h2>
-        <p>联系我</p>
-      </div>
-      <div class="contact-content reveal reveal-delay">
-        <p>有想法、合作或交流，欢迎通过下面任一方式联系我。</p>
-        <dl class="fact-list contact-list">
-          <div>
-            <dt>Email</dt>
-            <dd><a href="mailto:zhouyangyang@bupt.edu.cn">zhouyangyang@bupt.edu.cn</a></dd>
-          </div>
-          <div>
-            <dt>GitHub</dt>
-            <dd><a href="https://github.com/nanzhi84" target="_blank" rel="noopener noreferrer">github.com/nanzhi84</a></dd>
-          </div>
-        </dl>
+    <section class="container section contact-scene" id="contact">
+      <div class="reveal">
+        <h2>下一场镜头</h2>
+        <p>有 AI 产品想法、项目合作或写作交流，欢迎随时联系。</p>
+        <div class="contact-links">
+          <a href="mailto:zhouyangyang@bupt.edu.cn">Email</a>
+          <a href="https://github.com/nanzhi84" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
       </div>
     </section>
   </main>

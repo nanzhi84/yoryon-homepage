@@ -25,10 +25,12 @@ const navItems = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <meta name="theme-color" content="#0c0d10" />
     <link rel="icon" type="image/jpeg" href="/yoryon_logo.jpg" />
     <link rel="stylesheet" href="/css/styles.css" />
   </head>
   <body class={bodyClass}>
+    <div class="site-grain" aria-hidden="true"></div>
     <header class="site-header" id="top">
       <div class="container header-inner">
         <a class="brand" href={isHome ? "#home" : "/#home"}>Yoryon</a>

@@ -31,7 +31,6 @@ const hasProjectContent = typeof project.body === "string" && project.body.trim(
       <a class="back-link" href="/#projects">← 返回 Projects</a>
 
       <header class="project-detail-header">
-        <p class="section-label">Project</p>
         <h1>{project.data.title}</h1>
         <p>{project.data.summary}</p>
       </header>
@@ -45,13 +44,13 @@ const hasProjectContent = typeof project.body === "string" && project.body.trim(
       </dl>
 
       {hasProjectContent ? (
-        <section class="post-content project-content" aria-label="项目详情">
+        <section class="post-content" aria-label="项目详情">
           <Content />
         </section>
       ) : (
         <section class="project-placeholder" aria-label="项目详情待补充">
           <h2>项目详情待补充</h2>
-          <p>这里先保留为极简结构，后续可以按你的项目设计逐步加入研究过程、页面展示和复盘内容。</p>
+          <p>该项目的详细复盘正在整理中，近期补充研究过程、页面展示与复盘内容。</p>
         </section>
       )}
 

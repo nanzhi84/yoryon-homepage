@@ -19,7 +19,7 @@ const formatDate = (date) => new Intl.DateTimeFormat("zh-CN", {
   description="Yoryon 的博客与思考页面，记录产品、成长、写作和复盘。"
   activeNav="thinking"
 >
-  <main class="blog-main">
+  <main>
     <section class="archive-hero container section">
       <div class="archive-heading reveal">
         <a class="back-link" href="/#thinking">← 返回首页</a>
@@ -30,10 +30,7 @@ const formatDate = (date) => new Intl.DateTimeFormat("zh-CN", {
 
     <section class="container section" id="latest">
       <div class="section-heading reveal">
-        <div>
-          <h2>All notes</h2>
-          <p>全部文章</p>
-        </div>
+        <h2>全部文章</h2>
       </div>
       <div class="article-list">
         {posts.map((post, index) => (
