@@ -22,3 +22,6 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# Playwright MCP plugin scratch dir
+.playwright-mcp/
