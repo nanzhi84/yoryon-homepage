@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yoryon</title>
+<style>
+  /* ============================================================
+     Yoryon 首页设计稿 · 方向 B「暗色仪器」(Dark Instrument)
+     主题锁：暗色。强调色全页唯一：#34b37f。
+     圆角制度：容器(卡/面板) 8px，小元件(按钮/chip) 4px，全页统一。
+     ============================================================ */
+  :root{
+    --bg: #0d0e10;
+    --panel: #141518;
+    --panel-2: #17181b;
+    --line: #23252a;
+    --line-soft: #1c1e22;
+    --text: #e7e9ec;
+    --text-strong: #f2f3f5;
+    --text-2: #a2a7af;
+    --text-3: #7d828b;
+    --accent: #34b37f;
+    --accent-soft: rgba(52,179,127,.45);
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, "PingFang SC", monospace;
+    --r-box: 8px;
+    --r-ui: 4px;
+    --ease: cubic-bezier(.16, 1, .3, 1);
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    font-size:16px;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  ::selection{ background:rgba(52,179,127,.28); color:var(--text-strong); }
+  a{ color:inherit; text-decoration:none; }
+  .mono{ font-family:var(--mono); }
+  .wrap{ max-width:1120px; margin:0 auto; padding:0 24px; }
+
+  /* ---------- Nav ---------- */
+  .nav{
+    position:sticky; top:0; z-index:20;
+    background:rgba(13,14,16,.86);
+    -webkit-backdrop-filter:blur(12px);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .nav-inner{
+    height:60px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .brand{
+    font-weight:700; font-size:17px; letter-spacing:-.01em;
+    color:var(--text-strong);
+    transition:color .2s;
+  }
+  .brand:hover{ color:var(--accent); }
+  .brand:active{ opacity:.7; }
+  .nav-links{ display:flex; gap:28px; }
+  .nav-links a{
+    position:relative;
+    font-family:var(--mono); font-size:13px;
+    color:var(--text-2);
+    padding:4px 0;
+    transition:color .2s;
+  }
+  .nav-links a::after{
+    content:"";
+    position:absolute; left:0; bottom:0;
+    width:100%; height:1px;
+    background:var(--accent);
+    transform:scaleX(0); transform-origin:left;
+    transition:transform .25s var(--ease);
+  }
+  .nav-links a:hover{ color:var(--text-strong); }
+  .nav-links a:hover::after{ transform:scaleX(1); }
+  .nav-links a:active{ opacity:.65; }
+
+  /* ---------- Hero（含 About 事实清单） ---------- */
+  .hero{
+    min-height:calc(100dvh - 60px);
+    display:grid; align-content:center;
+    padding:72px 0 88px;
+    position:relative;
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1.25fr 1fr;
+    gap:0;
+  }
+  .hero-main{ padding-right:56px; }
+  .hero h1{
+    font-size:clamp(2.1rem, 4.6vw, 3.4rem);
+    line-height:1.28;
+    font-weight:700;
+    letter-spacing:-.02em;
+    color:var(--text-strong);
+  }
+  .hero h1 .accent{ color:var(--accent); }
+  .hero-sub{
+    margin-top:22px;
+    font-size:16.5px;
+    color:var(--text-2);
+    max-width:30em;
+  }
+  .hero-cta{ margin-top:36px; }
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--accent);
+    color:#0c1511;
+    font-weight:600; font-size:15px;
+    padding:11px 24px;
+    border-radius:var(--r-ui);
+    transition:background .2s, transform .15s var(--ease);
+  }
+  .btn:hover{ background:#3ec489; transform:translateY(-1px); }
+  .btn:active{ transform:scale(.97); }
+  .btn .arr{ font-family:var(--mono); font-size:14px; }
+
+  /* 右侧 mono 事实清单：hairline 是结构线 */
+  .facts{
+    border-left:1px solid var(--line);
+    padding-left:48px;
+    display:flex; flex-direction:column; justify-content:center;
+  }
+  .fact{
+    padding:20px 0;
+  }
+  .fact + .fact{ border-top:1px solid var(--line-soft); }
+  .fact-k{
+    font-size:13px; color:var(--text-3);
+    margin-bottom:6px;
+  }
+  .fact-v{ font-size:15px; color:var(--text); line-height:1.65; }
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:2px; }
+  .chip{
+    font-family:var(--mono); font-size:12.5px;
+    color:var(--text-2);
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--r-ui);
+    padding:3px 9px;
+    transition:border-color .2s, color .2s;
+  }
+  .chip:hover{ border-color:var(--accent-soft); color:var(--text-strong); }
+  .fact-v a.plain{
+    font-family:var(--mono); font-size:14px;
+    color:var(--text);
+    border-bottom:1px solid var(--line);
+    padding-bottom:1px;
+    transition:color .2s, border-color .2s;
+  }
+  .fact-v a.plain:hover{ color:var(--accent); border-color:var(--accent); }
+  .fact-v a.plain:active{ opacity:.7; }
+
+  /* ---------- 通用区块 ---------- */
+  section{ padding:104px 0; }
+  /* 区块间的 hairline：结构分隔线，随 1120px 容器内缩 */
+  #thinking, #projects, #contact{ border-top:1px solid var(--line-soft); }
+  .sec-head{
+    display:flex; align-items:baseline; justify-content:space-between;
+    gap:16px;
+    margin-bottom:40px;
+  }
+  .sec-title{
+    display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;
+  }
+  .sec-title h2{
+    font-size:26px; font-weight:700; letter-spacing:-.015em;
+    color:var(--text-strong);
+  }
+  .sec-title .note{ font-size:14px; color:var(--text-3); }
+  .sec-count{
+    font-family:var(--mono); font-size:13px; color:var(--text-3);
+    white-space:nowrap;
+  }
+
+  /* ---------- Thinking 索引表 ---------- */
+  .index{ border-top:1px solid var(--line); }
+  .row{
+    position:relative;
+    display:grid;
+    grid-template-columns:118px 1fr auto;
+    align-items:baseline;
+    gap:24px;
+    padding:19px 16px 19px 20px;
+    border-bottom:1px solid var(--line-soft);
+    transition:background .2s;
+  }
+  .row::before{
+    content:"";
+    position:absolute; left:0; top:50%;
+    width:2px; height:60%;
+    background:var(--accent);
+    transform:translateY(-50%) scaleY(0);
+    transition:transform .25s var(--ease);
+  }
+  .row:hover{ background:var(--panel-2); }
+  .row:hover::before{ transform:translateY(-50%) scaleY(1); }
+  .row:active{ background:var(--panel); }
+  .row .date{
+    font-family:var(--mono); font-size:13.5px; color:var(--text-3);
+    transition:color .2s;
+  }
+  .row .title{
+    font-size:16.5px; font-weight:500; color:var(--text);
+    transition:color .2s;
+  }
+  .row:hover .title{ color:var(--text-strong); }
+  .row:hover .date{ color:var(--text-2); }
+  .row .go{
+    font-family:var(--mono); font-size:14px; color:var(--accent);
+    opacity:0;
+    transform:translateX(-4px);
+    transition:opacity .2s, transform .25s var(--ease);
+  }
+  .row:hover .go{ opacity:1; transform:translateX(0); }
+
+  /* ---------- Projects bento（2+1） ---------- */
+  .bento{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+  .card{
+    border:1px solid var(--line);
+    border-radius:var(--r-box);
+    background:var(--panel);
+    padding:32px;
+    display:flex; flex-direction:column; gap:14px;
+    transition:border-color .25s, transform .25s var(--ease);
+  }
+  .card:hover{
+    border-color:var(--accent-soft);
+    transform:translateY(-2px);
+  }
+  .card-wide{
+    grid-column:span 2;
+    padding:44px 40px;
+    background:
+      repeating-linear-gradient(0deg,   rgba(52,179,127,.05) 0 1px, transparent 1px 44px),
+      repeating-linear-gradient(90deg,  rgba(52,179,127,.05) 0 1px, transparent 1px 44px),
+      linear-gradient(135deg, #102019 0%, #141518 62%);
+  }
+  .card-tint{
+    background:linear-gradient(180deg, #16171a 0%, #131417 100%);
+  }
+  .card h3{
+    font-size:19px; font-weight:600; letter-spacing:-.01em;
+    color:var(--text-strong);
+  }
+  .card-wide h3{ font-size:22px; }
+  .card p{
+    font-size:15px; color:var(--text-2);
+    max-width:36em;
+  }
+  .card .chips{ margin-top:auto; padding-top:10px; }
+
+  /* ---------- Contact ---------- */
+  .contact-inner{ max-width:720px; }
+  .contact-inner h2{
+    font-size:26px; font-weight:700; letter-spacing:-.015em;
+    color:var(--text-strong);
+    margin-bottom:14px;
+  }
+  .contact-inner p{ color:var(--text-2); font-size:16px; margin-bottom:36px; }
+  .mail{
+    display:inline-block;
+    font-family:var(--mono);
+    font-size:clamp(1.25rem, 3.4vw, 2.3rem);
+    letter-spacing:-.01em;
+    color:var(--text-strong);
+    border-bottom:2px solid var(--line);
+    padding-bottom:6px;
+    word-break:keep-all;
+    transition:color .25s, border-color .25s, transform .15s var(--ease);
+  }
+  .mail:hover{ color:var(--accent); border-color:var(--accent); }
+  .mail:active{ transform:scale(.99); }
+
+  /* ---------- Footer ---------- */
+  footer{ border-top:1px solid var(--line-soft); }
+  .foot-inner{
+    height:64px;
+    display:flex; align-items:center; justify-content:space-between;
+    font-family:var(--mono); font-size:12.5px; color:var(--text-3);
+  }
+  .foot-inner a{ transition:color .2s; }
+  .foot-inner a:hover{ color:var(--accent); }
+  .foot-inner a:active{ opacity:.7; }
+
+  /* ---------- 进场动效 ----------
+     hero：加载即入场（一次性，交代层级顺序）
+     区块：IntersectionObserver 触发 stagger（叙事节奏）
+  */
+  @keyframes fadeUp{
+    from{ opacity:0; transform:translateY(14px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .js .hero-sub, .js .hero-cta, .js .fact{
+    opacity:0;
+    animation:fadeUp .7s var(--ease) both;
+  }
+  .js .hero-sub{ animation-delay:.55s; }
+  .js .hero-cta{ animation-delay:.68s; }
+  .js .fact:nth-child(1){ animation-delay:.60s; }
+  .js .fact:nth-child(2){ animation-delay:.70s; }
+  .js .fact:nth-child(3){ animation-delay:.80s; }
+  .js .fact:nth-child(4){ animation-delay:.90s; }
+
+  .js .reveal{ opacity:0; }
+  .js .reveal.in{
+    animation:fadeUp .6s var(--ease) both;
+    animation-delay:var(--d, 0s);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .js .hero-sub, .js .hero-cta, .js .fact,
+    .js .reveal, .js .reveal.in{
+      opacity:1; animation:none;
+    }
+    .row, .row::before, .card, .btn, .mail,
+    .nav-links a::after, .row .go{
+      transition:none;
+    }
+  }
+
+  /* ---------- 移动端：单列塌缩 ---------- */
+  @media (max-width:767px){
+    .nav-links{ gap:20px; }
+    .nav-links a[data-sec]{ display:none; }
+    .hero{ padding:56px 0 72px; min-height:auto; }
+    .hero-grid{ grid-template-columns:1fr; gap:44px; }
+    .hero-main{ padding-right:0; }
+    .facts{
+      border-left:none;
+      border-top:1px solid var(--line);
+      padding-left:0; padding-top:12px;
+    }
+    section{ padding:72px 0; }
+    .sec-head{ flex-direction:column; gap:6px; margin-bottom:28px; }
+    .row{ grid-template-columns:96px 1fr; gap:14px; padding:16px 12px 16px 16px; }
+    .row .go{ display:none; }
+    .bento{ grid-template-columns:1fr; }
+    .card-wide{ grid-column:span 1; padding:32px 28px; }
+    .foot-inner{ height:auto; padding:20px 0; flex-direction:column; gap:8px; align-items:flex-start; }
+  }
+</style>
+</head>
+<body id="top">
+
+  <!-- ===== Nav ===== -->
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top">Yoryon</a>
+      <nav class="nav-links">
+        <a href="#top" data-sec>Home</a>
+        <a href="#about">About</a>
+        <a href="#thinking">Thinking</a>
+        <a href="#projects">Projects</a>
+        <a href="#contact" data-sec>Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== Hero + About 事实清单 ===== -->
+  <div class="wrap">
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="hero-main">
+          <h1>
+            <span data-scramble>在创造与复盘中，</span><br>
+            <span class="accent" data-scramble data-delay="420">持续迭代自己。</span>
+          </h1>
+          <p class="hero-sub">关注产品思考、写作与成长，主要方向是 AI 产品、LLM 应用与 Agent 工作流。</p>
+          <div class="hero-cta">
+            <a class="btn" href="#projects">查看项目 <span class="arr">&#8595;</span></a>
+          </div>
+        </div>
+
+        <aside class="facts" id="about">
+          <div class="fact">
+            <div class="fact-k">身份</div>
+            <div class="fact-v">北京邮电大学在读，信息与计算科学专业</div>
+          </div>
+          <div class="fact">
+            <div class="fact-k">方向</div>
+            <div class="fact-v">AI 产品、LLM 应用、Agent 工作流、模型评测</div>
+          </div>
+          <div class="fact">
+            <div class="fact-k">常用工具</div>
+            <div class="fact-v chips">
+              <span class="chip">Python</span>
+              <span class="chip">TypeScript</span>
+              <span class="chip">Next.js</span>
+              <span class="chip">NestJS</span>
+              <span class="chip">PostgreSQL</span>
+              <span class="chip">PyTorch</span>
+            </div>
+          </div>
+          <div class="fact">
+            <div class="fact-k">GitHub</div>
+            <div class="fact-v">
+              <a class="plain" href="https://github.com/nanzhi84" target="_blank" rel="noopener">github.com/nanzhi84 &#8599;</a>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== Thinking 索引表 ===== -->
+  <div class="wrap">
+    <section id="thinking">
+      <div class="sec-head reveal">
+        <div class="sec-title">
+          <h2>Thinking</h2>
+          <span class="note">产品与技术随笔</span>
+        </div>
+        <span class="sec-count">最新 5 篇</span>
+      </div>
+      <div class="index">
+        <a class="row reveal" style="--d:.05s" href="#thinking">
+          <span class="date">2026-07-07</span>
+          <span class="title">Claude Code 的四种循环</span>
+          <span class="go">&#8599;</span>
+        </a>
+        <a class="row reveal" style="--d:.11s" href="#thinking">
+          <span class="date">2026-05-25</span>
+          <span class="title">我做了个能在浏览器里跑的手写数字串识别</span>
+          <span class="go">&#8599;</span>
+        </a>
+        <a class="row reveal" style="--d:.17s" href="#thinking">
+          <span class="date">2026-05-24</span>
+          <span class="title">我写了个在浏览器里思考的五子棋 AI</span>
+          <span class="go">&#8599;</span>
+        </a>
+        <a class="row reveal" style="--d:.23s" href="#thinking">
+          <span class="date">2026-05-19</span>
+          <span class="title">Cursor Composer 2.5</span>
+          <span class="go">&#8599;</span>
+        </a>
+        <a class="row reveal" style="--d:.29s" href="#thinking">
+          <span class="date">2026-05-16</span>
+          <span class="title">MCP、Skills 与 Harness</span>
+          <span class="go">&#8599;</span>
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== Projects bento（2+1） ===== -->
+  <div class="wrap">
+    <section id="projects">
+      <div class="sec-head reveal">
+        <div class="sec-title">
+          <h2>Projects</h2>
+          <span class="note">从基准评测到产品落地</span>
+        </div>
+        <span class="sec-count">3 个项目</span>
+      </div>
+      <div class="bento">
+        <article class="card card-wide reveal" style="--d:.05s">
+          <h3>AI Agent 工作流产品化实践</h3>
+          <p>把代码审查、问题定位、数据采集与内容生产等高频任务，拆解为可复用的标准化 AI 协作 Skill。</p>
+          <div class="chips">
+            <span class="chip">Skill</span>
+            <span class="chip">Prompt</span>
+            <span class="chip">Agent 工作流</span>
+          </div>
+        </article>
+        <article class="card card-tint reveal" style="--d:.13s">
+          <h3>RMGAP 奖励模型偏好泛化评测基准</h3>
+          <p>系统衡量奖励模型能否识别不同用户对同一任务的偏好差异，覆盖 Chat、Writing、Reasoning、Safety 四类场景。</p>
+          <div class="chips">
+            <span class="chip">SGLang</span>
+            <span class="chip">PyTorch</span>
+            <span class="chip">多模型评测</span>
+          </div>
+        </article>
+        <article class="card reveal" style="--d:.21s">
+          <h3>LiLink 校园匹配社交</h3>
+          <p>面向中外合办与国际交流项目学生的低信任陌生人社交，用批量匹配机制替代即时滑动配对。</p>
+          <div class="chips">
+            <span class="chip">Next.js</span>
+            <span class="chip">NestJS</span>
+            <span class="chip">PostgreSQL</span>
+            <span class="chip">DeepSeek</span>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== Contact ===== -->
+  <div class="wrap">
+    <section id="contact">
+      <div class="contact-inner reveal">
+        <h2>Contact</h2>
+        <p>对 AI 产品、Agent 工作流或写作感兴趣，欢迎写信聊聊。</p>
+        <a class="mail" href="mailto:zhouyangyang@bupt.edu.cn">zhouyangyang@bupt.edu.cn</a>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== Footer ===== -->
+  <footer>
+    <div class="wrap foot-inner">
+      <span>&copy; 2026 Yoryon</span>
+      <a href="https://github.com/nanzhi84" target="_blank" rel="noopener">github.com/nanzhi84 &#8599;</a>
+    </div>
+  </footer>
+
+<script>
+(function(){
+  document.documentElement.classList.add('js');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- hero 标题一次性字符解码（scramble）----
+     理由：叙事进场，把视线锚定在标题上；解码完成即静止，不循环。 */
+  var POOL = '产品思考写作成长创造复盘迭代模型评测代理工程系统循环认知实践应用';
+  var PUNCT = /[、。，：；]/; /* 顿号句号逗号冒号分号直接锁定 */
+
+  function scramble(el){
+    var target = el.textContent;
+    var chars = target.split('');
+    var locked = 0, frame = 0;
+    function tick(){
+      frame++;
+      if (frame % 4 === 0) locked++;
+      var out = '';
+      for (var i = 0; i < chars.length; i++){
+        if (i < locked || PUNCT.test(chars[i])) out += chars[i];
+        else out += POOL[Math.floor(Math.random() * POOL.length)];
+      }
+      el.textContent = out;
+      if (locked < chars.length) requestAnimationFrame(tick);
+      else el.textContent = target;
+    }
+    tick();
+  }
+
+  if (!reduce){
+    document.querySelectorAll('[data-scramble]').forEach(function(el){
+      var delay = parseInt(el.getAttribute('data-delay') || '0', 10);
+      setTimeout(function(){ scramble(el); }, delay);
+    });
+  }
+
+  /* ---- 区块 IntersectionObserver stagger 进场 ----
+     理由：按阅读顺序逐条呈现索引与卡片，交代内容层级；一次性触发。 */
+  var reveals = document.querySelectorAll('.reveal');
+  if (reduce || !('IntersectionObserver' in window)){
+    reveals.forEach(function(el){ el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold:.15, rootMargin:'0px 0px -40px 0px' });
+    reveals.forEach(function(el){ io.observe(el); });
+  }
+})();
+</script>
+</body>
+</html>

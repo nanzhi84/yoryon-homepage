@@ -16,11 +16,8 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
-const formattedDate = new Intl.DateTimeFormat("zh-CN", {
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit"
-}).format(post.data.pubDate);
+// frontmatter 裸日期按 UTC 午夜解析，格式化必须用 UTC 取值，否则西半球时区会提前一天
+const formattedDate = post.data.pubDate.toISOString().slice(0, 10);
 ---
 
 <SiteShell title={`${post.data.title} | Yoryon`} description={post.data.description} activeNav="thinking">

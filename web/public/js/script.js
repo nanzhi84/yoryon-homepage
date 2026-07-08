@@ -1,36 +1,41 @@
-const revealElements = document.querySelectorAll('.reveal');
+// 老浏览器没有 IntersectionObserver 时退回全可见（去掉 js 门控），避免 reveal 元素永久隐藏
+if (!('IntersectionObserver' in window)) {
+  document.documentElement.classList.remove('js');
+} else {
+  const revealElements = document.querySelectorAll('.reveal');
 
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('is-visible');
-      revealObserver.unobserve(entry.target);
-    }
-  });
-}, {
-  threshold: 0.14,
-  rootMargin: '0px 0px -40px 0px'
-});
-
-revealElements.forEach((el) => revealObserver.observe(el));
-
-const sections = document.querySelectorAll('main section[id]');
-const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
-
-if (sections.length && navLinks.length) {
-  const navObserver = new IntersectionObserver((entries) => {
+  const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        navLinks.forEach((link) => link.classList.remove('is-active'));
-        const activeLink = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
-        if (activeLink) activeLink.classList.add('is-active');
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
       }
     });
   }, {
-    threshold: 0.45
+    threshold: 0.12,
+    rootMargin: '0px 0px -8% 0px'
   });
 
-  sections.forEach((section) => navObserver.observe(section));
+  revealElements.forEach((el) => revealObserver.observe(el));
+
+  const sections = document.querySelectorAll('main section[id]');
+  const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+
+  if (sections.length && navLinks.length) {
+    const navObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          navLinks.forEach((link) => link.classList.remove('is-active'));
+          const activeLink = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+          if (activeLink) activeLink.classList.add('is-active');
+        }
+      });
+    }, {
+      threshold: 0.45
+    });
+
+    sections.forEach((section) => navObserver.observe(section));
+  }
 }
 
 const siteHeader = document.querySelector('.site-header');
@@ -61,9 +66,16 @@ if (navToggle && siteHeader && siteNav) {
       setMenuOpen(false);
     }
   });
-  window.addEventListener('resize', () => {
-    if (window.innerWidth > 768) {
+  // 断点与 CSS 的汉堡菜单媒体查询保持同源，离开移动断点时收起菜单
+  const mobileNavQuery = window.matchMedia('(max-width: 640px)');
+  const handleBreakpointChange = (mq) => {
+    if (!mq.matches) {
       setMenuOpen(false);
     }
-  });
+  };
+  if (typeof mobileNavQuery.addEventListener === 'function') {
+    mobileNavQuery.addEventListener('change', handleBreakpointChange);
+  } else if (typeof mobileNavQuery.addListener === 'function') {
+    mobileNavQuery.addListener(handleBreakpointChange);
+  }
 }

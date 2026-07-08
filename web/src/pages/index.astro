@@ -3,140 +3,160 @@ import { getCollection } from "astro:content";
 import SiteShell from "../layouts/SiteShell.astro";
 
 const getEntrySlug = (entry) => entry.slug ?? entry.id.replace(/\.(mdoc|mdx?)$/, "");
-const formatDate = (date) => new Intl.DateTimeFormat("zh-CN", {
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit"
-}).format(date);
+// frontmatter 裸日期按 UTC 午夜解析，格式化必须用 UTC 取值，否则西半球时区会提前一天
+const formatDate = (date) => date.toISOString().slice(0, 10);
 
-const recentPosts = (await getCollection("blog"))
+const allPosts = (await getCollection("blog"))
   .filter((post) => !post.data.draft)
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-  .slice(0, 5);
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const recentPosts = allPosts.slice(0, 6);
 
 const projects = (await getCollection("projects"))
   .sort((a, b) => a.data.order - b.data.order);
 ---
 
 <SiteShell
-  title="Yoryon | Personal Homepage"
-  description="Yoryon 的个人主页，记录产品、思考、成长与项目实践。"
+  title="Yoryon | 个人主页"
+  description="Yoryon（釉蓝yoryon）的个人主页：AI 产品、LLM 应用、Agent 工作流与模型评测的思考、写作和项目实践。"
   activeNav="home"
 >
   <main class="home-main">
-    <section class="hero" id="home" aria-label="首页介绍">
-      <div class="hero-media" aria-hidden="true">
-        <picture>
-          <source srcset="/assets/home-workspace-minimal.webp" type="image/webp" />
-          <img
-            src="/assets/home-workspace-minimal.png"
-            alt=""
-            width="1536"
-            height="1024"
-            decoding="async"
-            fetchpriority="high"
-          />
-        </picture>
-      </div>
-      <div class="container hero-inner">
-        <div class="hero-copy reveal">
-        <h1>Yoryon</h1>
-          <p class="hero-desc">关注产品思考、写作与成长，在创造与复盘中持续迭代自己。</p>
-          <div class="hero-index" aria-label="主页入口">
-            <a href="#thinking"><span>01</span><strong>Thinking / 写作</strong><em>→</em></a>
-            <a href="#projects"><span>02</span><strong>Projects / 项目</strong><em>→</em></a>
-          </div>
-          <p class="hero-contact">
-            <a href="#contact">Contact →</a>
-            <span>或发送邮件至</span>
-            <a href="mailto:zhouyangyang@bupt.edu.cn">zhouyangyang@bupt.edu.cn</a>
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <section class="about container section" id="about">
-      <div class="section-aside reveal">
-        <h2>About</h2>
-        <p>关于我</p>
-      </div>
-      <div class="about-content reveal reveal-delay">
-        <p>我叫 Yoryon，目前在北京邮电大学读本科，专业是信息与计算科学。</p>
-        <p>关注 AI 产品方向，喜欢把 LLM 应用、Agent 工作流和模型评测这些事拆解清楚再落地成产品，并通过写作沉淀认知、记录成长。</p>
-        <p>正在做的事：从用户场景、机制设计到工程协作，把 AI 能力跑成真实可用的产品。</p>
-        <dl class="fact-list">
-          <div><dt>身份</dt><dd>北京邮电大学 在读 · 信息与计算科学</dd></div>
-          <div><dt>方向</dt><dd>AI 产品 · LLM 应用 · Agent 工作流 · 模型评测</dd></div>
-          <div><dt>方式</dt><dd>观察 · 思考 · 实践 · 复盘</dd></div>
-          <div><dt>工具</dt><dd>Python、TypeScript、Next.js、NestJS、PostgreSQL、PyTorch</dd></div>
-          <div><dt>邮箱</dt><dd><a href="mailto:zhouyangyang@bupt.edu.cn">zhouyangyang@bupt.edu.cn</a></dd></div>
-        </dl>
-      </div>
-    </section>
-
-    <section class="container section home-thinking" id="thinking">
-      <div class="section-heading reveal">
+    <section class="hero container" id="home" aria-label="首页介绍">
+      <div class="hero-grid">
         <div>
-          <h2>Latest Thinking</h2>
-          <p>最近的思考与写作</p>
+          <h1 class="hero-title">
+            <span class="line"><span class="line-inner">在创造与复盘中，</span></span>
+            <span class="line"><span class="line-inner">持续<em>迭代</em>自己。</span></span>
+          </h1>
+          <p class="hero-sub">关注 AI 产品、写作与成长，这里是 Yoryon 的记录本。</p>
+          <div class="hero-cta-row">
+            <a class="btn" href="#thinking">读最新文章<span class="arr" aria-hidden="true">&rarr;</span></a>
+          </div>
         </div>
-        <a href="/blog/" class="text-link">查看全部文章 →</a>
-      </div>
-
-      <div class="article-list">
-        {recentPosts.map((post, index) => (
-          <a class:list={["article-row", "reveal", { "reveal-delay-2": index === 1, "reveal-delay-3": index === 2 }]} href={`/blog/${getEntrySlug(post)}/`}>
-            <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
-            <article>
-                <h3>{post.data.title}</h3>
-                <p>{post.data.description}</p>
-            </article>
-            <span aria-hidden="true">→</span>
-          </a>
-        ))}
+        <figure class="figure">
+          <picture>
+            <source srcset="/assets/home-workspace-minimal.webp" type="image/webp" />
+            <img
+              src="/assets/home-workspace-minimal.png"
+              alt=""
+              width="1536"
+              height="1024"
+              decoding="async"
+              fetchpriority="high"
+            />
+          </picture>
+        </figure>
       </div>
     </section>
 
-    <section class="container section" id="projects">
-      <div class="section-heading reveal">
-        <div>
-          <h2>Selected Projects</h2>
-          <p>精选项目</p>
+    <section class="section" id="about">
+      <div class="container sec-grid">
+        <aside class="sec-rail reveal">
+          <h2>About</h2>
+          <span class="zh">关于我</span>
+        </aside>
+        <div class="about-body reveal reveal-delay">
+          <p class="lede">我在北京邮电大学读信息与计算科学，大部分精力都放在 AI 产品上：怎么把 LLM 用在对的地方，怎么让 Agent 稳定干活，以及怎么衡量模型到底行不行。</p>
+          <p>比起追热点，我更愿意把一个想法完整做出来，再回头复盘：哪里想当然了，哪里还能更好。这个网站和「釉蓝yoryon」这个账号，记录的就是这些过程。</p>
+          <div class="about-cols">
+            <dl class="fact-list">
+              <div><dt>学校</dt><dd>北京邮电大学 · 在读</dd></div>
+              <div><dt>专业</dt><dd>信息与计算科学</dd></div>
+              <div><dt>方向</dt><dd>AI 产品 · LLM 应用 · Agent 工作流 · 模型评测</dd></div>
+              <div><dt>邮箱</dt><dd><a href="mailto:zhouyangyang@bupt.edu.cn">zhouyangyang@bupt.edu.cn</a></dd></div>
+            </dl>
+            <div class="tools">
+              <div class="tools-label">常用工具</div>
+              <ul>
+                <li>Python</li>
+                <li>TypeScript</li>
+                <li>Next.js</li>
+                <li>NestJS</li>
+                <li>PostgreSQL</li>
+                <li>PyTorch</li>
+              </ul>
+            </div>
+          </div>
         </div>
-        <a href="#projects" class="text-link">查看全部项目 →</a>
-      </div>
-      <div class="project-list">
-        {projects.map((project, index) => (
-          <a class:list={["project-row", "reveal", { "reveal-delay-2": index === 1, "reveal-delay-3": index === 2 }]} href={`/projects/${getEntrySlug(project)}/`}>
-            <span class="project-number">{String(index + 1).padStart(2, "0")}</span>
-            <article>
-              <h3>{project.data.title}</h3>
-              <p>{project.data.summary}</p>
-            </article>
-            <span class="project-stack">{project.data.stack}</span>
-            <span class="project-action">项目详情 →</span>
-          </a>
-        ))}
       </div>
     </section>
 
-    <section class="container section footer-panel" id="contact">
-      <div class="section-aside reveal">
-        <h2>Contact</h2>
-        <p>联系我</p>
+    <section class="section" id="thinking">
+      <div class="container sec-grid">
+        <aside class="sec-rail reveal">
+          <h2>Thinking</h2>
+          <span class="zh">思考与写作</span>
+          <span class="rail-meta">共 {allPosts.length} 篇</span>
+          <a class="rail-link" href="/blog/">查看全部文章 &rarr;</a>
+        </aside>
+        <ul class="post-list">
+          {recentPosts.map((post) => (
+            <li>
+              <a class="post-row reveal" href={`/blog/${getEntrySlug(post)}/`}>
+                <time class="post-date" datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+                <div>
+                  <h3 class="post-title">{post.data.title}</h3>
+                  <p class="post-desc">{post.data.description}</p>
+                </div>
+                <span class="post-arr" aria-hidden="true">&rarr;</span>
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
-      <div class="contact-content reveal reveal-delay">
-        <p>有想法、合作或交流，欢迎通过下面任一方式联系我。</p>
-        <dl class="fact-list contact-list">
-          <div>
-            <dt>Email</dt>
-            <dd><a href="mailto:zhouyangyang@bupt.edu.cn">zhouyangyang@bupt.edu.cn</a></dd>
-          </div>
-          <div>
-            <dt>GitHub</dt>
-            <dd><a href="https://github.com/nanzhi84" target="_blank" rel="noopener noreferrer">github.com/nanzhi84</a></dd>
-          </div>
-        </dl>
+    </section>
+
+    <section class="section" id="projects">
+      <div class="container sec-grid">
+        <aside class="sec-rail reveal">
+          <h2>Projects</h2>
+          <span class="zh">做过的东西</span>
+          <span class="rail-meta">{projects.length} 个项目</span>
+        </aside>
+        <div class="proj-grid">
+          {projects.map((project, index) => (
+            <a
+              class:list={["proj-card", "reveal", { featured: index === 0, "reveal-delay-2": index === 1, "reveal-delay-3": index === 2 }]}
+              href={`/projects/${getEntrySlug(project)}/`}
+            >
+              <h3 class="proj-title">{project.data.title}</h3>
+              <p class="proj-desc">{project.data.summary}</p>
+              <div class="proj-foot">
+                <span class="proj-tags">{project.data.stack}</span>
+                <span class="proj-more">项目详情 &rarr;</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <div class="container sec-grid">
+        <aside class="sec-rail reveal">
+          <h2>Contact</h2>
+          <span class="zh">联系我</span>
+        </aside>
+        <div class="reveal reveal-delay">
+          <p class="contact-note">关于 AI 产品、写作，或任何有意思的念头，都欢迎写信聊聊。</p>
+          <a class="contact-mail" href="mailto:zhouyangyang@bupt.edu.cn">zhouyangyang@bupt.edu.cn</a>
+          <dl class="social-list" aria-label="社交与自媒体账号">
+            <div>
+              <dt>GitHub</dt>
+              <dd><a href="https://github.com/nanzhi84" target="_blank" rel="noopener noreferrer">nanzhi84</a></dd>
+            </div>
+            <div><dt>微信公众号</dt><dd>釉蓝yoryon</dd></div>
+            <div>
+              <dt>小红书</dt>
+              <dd><a href="https://www.xiaohongshu.com/user/profile/649ade98000000001001d1dc" target="_blank" rel="noopener noreferrer">釉蓝yoryon</a></dd>
+            </div>
+            <div>
+              <dt>抖音</dt>
+              <dd><a href="https://www.douyin.com/user/MS4wLjABAAAAKYi5Z7LC-1B1YgY8kYdN2DrKqwtdTvZ4I0lodLekyOs" target="_blank" rel="noopener noreferrer">釉蓝yoryon</a></dd>
+            </div>
+          </dl>
+          <p class="social-note">自媒体平台全网同名：釉蓝yoryon。</p>
+        </div>
       </div>
     </section>
   </main>

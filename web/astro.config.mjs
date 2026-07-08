@@ -11,6 +11,7 @@ export default defineConfig({
   site: "https://yoryon.com",
   output: "static",
   markdown: {
+    shikiConfig: { theme: "github-light" },
     remarkPlugins: [remarkMath],
     rehypePlugins: [rehypeKatex]
   },
