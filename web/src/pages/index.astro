@@ -19,34 +19,24 @@ const projects = (await getCollection("projects"))
   title="Yoryon | 个人主页"
   description="Yoryon（釉蓝yoryon）的个人主页：AI 产品、LLM 应用、Agent 工作流与模型评测的思考、写作和项目实践。"
   activeNav="home"
+  bodyClass="home-particle-page"
 >
   <main class="home-main">
-    <section class="hero container" id="home" aria-label="首页介绍">
-      <div class="hero-grid">
-        <div>
-          <h1 class="hero-title">
-            <span class="line"><span class="line-inner">在创造与复盘中，</span></span>
-            <span class="line"><span class="line-inner">持续<em>迭代</em>自己。</span></span>
-          </h1>
-          <p class="hero-sub">关注 AI 产品、写作与成长，这里是 Yoryon 的记录本。</p>
-          <div class="hero-cta-row">
-            <a class="btn" href="#thinking">读最新文章<span class="arr" aria-hidden="true">&rarr;</span></a>
-          </div>
-        </div>
-        <figure class="figure">
-          <picture>
-            <source srcset="/assets/home-workspace-minimal.webp" type="image/webp" />
-            <img
-              src="/assets/home-workspace-minimal.png"
-              alt=""
-              width="1536"
-              height="1024"
-              decoding="async"
-              fetchpriority="high"
-            />
-          </picture>
-        </figure>
+    <section class="hero" id="home" aria-label="首页介绍">
+      <canvas class="hero-particles" data-particle-field aria-hidden="true"></canvas>
+      <nav class="hero-nav" aria-label="首屏导航">
+        <a href="#about" data-flicker-text>ABOUT</a>
+        <a href="#thinking" data-flicker-text>THINKING</a>
+        <a href="#projects" data-flicker-text>PROJECTS</a>
+        <a href="#contact" data-flicker-text>CONTACT</a>
+      </nav>
+      <div class="hero-brand-block">
+        <h1 class="hero-wordmark" data-flicker-text>Yoryon</h1>
+        <p class="hero-manifesto" data-flicker-text>我们已经越过事件视界<br />起飞已经开始</p>
+        <p class="hero-sub" data-flicker-text>We are past the event horizon;<br />the takeoff has started.</p>
       </div>
+      <p class="hero-location" data-flicker-text>BUPT<br />AI Product<br />Beijing, China</p>
+      <a class="hero-scroll" href="#about" data-flicker-text>SCROLL &darr;</a>
     </section>
 
     <section class="section" id="about">
@@ -68,12 +58,9 @@ const projects = (await getCollection("projects"))
             <div class="tools">
               <div class="tools-label">常用工具</div>
               <ul>
-                <li>Python</li>
-                <li>TypeScript</li>
-                <li>Next.js</li>
-                <li>NestJS</li>
-                <li>PostgreSQL</li>
-                <li>PyTorch</li>
+                <li>Claude Code</li>
+                <li>Codex</li>
+                <li>React</li>
               </ul>
             </div>
           </div>
@@ -114,21 +101,21 @@ const projects = (await getCollection("projects"))
           <span class="rail-meta">{projects.length} 个项目</span>
           <a class="rail-link" href="/projects/">查看全部项目 &rarr;</a>
         </aside>
-        <div class="proj-grid">
+        <ol class="proj-index">
           {projects.map((project, index) => (
-            <a
-              class:list={["proj-card", "reveal", { featured: index === 0, "reveal-delay-2": index === 1, "reveal-delay-3": index === 2 }]}
-              href={`/projects/${getEntrySlug(project)}/`}
-            >
-              <h3 class="proj-title">{project.data.title}</h3>
-              <p class="proj-desc">{project.data.summary}</p>
-              <div class="proj-foot">
+            <li>
+              <a class="proj-row reveal" href={`/projects/${getEntrySlug(project)}/`}>
+                <span class="proj-num">{String(index + 1).padStart(2, "0")}</span>
+                <div class="proj-body">
+                  <h3 class="proj-title">{project.data.title}</h3>
+                  <p class="proj-desc">{project.data.summary}</p>
+                </div>
                 <span class="proj-tags">{project.data.stack}</span>
-                <span class="proj-more">项目详情 &rarr;</span>
-              </div>
-            </a>
+                <span class="proj-arr" aria-hidden="true">&rarr;</span>
+              </a>
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
     </section>
 
@@ -156,7 +143,6 @@ const projects = (await getCollection("projects"))
               <dd><a href="https://www.douyin.com/user/MS4wLjABAAAAKYi5Z7LC-1B1YgY8kYdN2DrKqwtdTvZ4I0lodLekyOs" target="_blank" rel="noopener noreferrer">釉蓝yoryon</a></dd>
             </div>
           </dl>
-          <p class="social-note">自媒体平台全网同名：釉蓝yoryon。</p>
         </div>
       </div>
     </section>

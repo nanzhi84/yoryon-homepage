@@ -24,22 +24,22 @@ const projects = (await getCollection("projects"))
 
     <section class="section" id="all-projects">
       <div class="container">
-        <div class="proj-grid">
+        <ol class="proj-index">
           {projects.map((project, index) => (
-            <a
-              class:list={["proj-card", "reveal", { featured: index === 0, "reveal-delay-2": index === 1, "reveal-delay-3": index === 2 }]}
-              href={`/projects/${getEntrySlug(project)}/`}
-            >
-              <h3 class="proj-title">{project.data.title}</h3>
-              <p class="proj-desc">{project.data.summary}</p>
-              <p class="proj-meta">{project.data.period} · {project.data.role}</p>
-              <div class="proj-foot">
+            <li>
+              <a class="proj-row reveal" href={`/projects/${getEntrySlug(project)}/`}>
+                <span class="proj-num">{String(index + 1).padStart(2, "0")}</span>
+                <div class="proj-body">
+                  <h3 class="proj-title">{project.data.title}</h3>
+                  <p class="proj-desc">{project.data.summary}</p>
+                  <p class="proj-meta">{project.data.period} · {project.data.role}</p>
+                </div>
                 <span class="proj-tags">{project.data.stack}</span>
-                <span class="proj-more">项目详情 &rarr;</span>
-              </div>
-            </a>
+                <span class="proj-arr" aria-hidden="true">&rarr;</span>
+              </a>
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
     </section>
   </main>
