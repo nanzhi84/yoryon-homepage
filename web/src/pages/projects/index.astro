@@ -1,0 +1,46 @@
+---
+import { getCollection } from "astro:content";
+import SiteShell from "../../layouts/SiteShell.astro";
+
+const getEntrySlug = (entry) => entry.slug ?? entry.id.replace(/\.(mdoc|mdx?)$/, "");
+const projects = (await getCollection("projects"))
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<SiteShell
+  title="Projects | Yoryon"
+  description="Yoryon（釉蓝yoryon）的项目档案：从评测基准到产品落地的完整项目列表。"
+  activeNav="projects"
+>
+  <main class="projects-main">
+    <section class="archive-hero container">
+      <div class="archive-heading reveal">
+        <a class="back-link" href="/#projects">&larr; 返回首页</a>
+        <h1>Projects</h1>
+        <p>从评测基准到产品落地，做过的东西都在这里。</p>
+        <span class="archive-count">共 {projects.length} 个项目</span>
+      </div>
+    </section>
+
+    <section class="section" id="all-projects">
+      <div class="container">
+        <div class="proj-grid">
+          {projects.map((project, index) => (
+            <a
+              class:list={["proj-card", "reveal", { featured: index === 0, "reveal-delay-2": index === 1, "reveal-delay-3": index === 2 }]}
+              href={`/projects/${getEntrySlug(project)}/`}
+            >
+              <h3 class="proj-title">{project.data.title}</h3>
+              <p class="proj-desc">{project.data.summary}</p>
+              <p class="proj-meta">{project.data.period} · {project.data.role}</p>
+              <div class="proj-foot">
+                <span class="proj-tags">{project.data.stack}</span>
+                <span class="proj-more">项目详情 &rarr;</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+</SiteShell>

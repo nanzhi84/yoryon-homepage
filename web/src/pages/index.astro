@@ -112,6 +112,7 @@ const projects = (await getCollection("projects"))
           <h2>Projects</h2>
           <span class="zh">做过的东西</span>
           <span class="rail-meta">{projects.length} 个项目</span>
+          <a class="rail-link" href="/projects/">查看全部项目 &rarr;</a>
         </aside>
         <div class="proj-grid">
           {projects.map((project, index) => (
