@@ -12,7 +12,8 @@ if (!('IntersectionObserver' in window)) {
       }
     });
   }, {
-    threshold: 0.12,
+    // threshold 必须为 0：比例阈值对高于视口数倍的长文（.post-shell）永远达不到，会导致整页隐形
+    threshold: 0,
     rootMargin: '0px 0px -8% 0px'
   });
 
