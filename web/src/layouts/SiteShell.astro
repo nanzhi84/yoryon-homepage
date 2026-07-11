@@ -12,8 +12,8 @@ const isHome = activeNav === "home";
 const navItems = [
   { id: "home", label: "Home", homeHref: "#home", siteHref: "/#home" },
   { id: "about", label: "About", homeHref: "#about", siteHref: "/#about" },
-  { id: "thinking", label: "Thinking", homeHref: "#thinking", siteHref: "/blog/" },
   { id: "projects", label: "Projects", homeHref: "#projects", siteHref: "/projects/" },
+  { id: "thinking", label: "Thinking", homeHref: "#thinking", siteHref: "/blog/" },
   { id: "contact", label: "Contact", homeHref: "#contact", siteHref: "/#contact" }
 ];
 ---
@@ -55,10 +55,9 @@ const navItems = [
       <div class="container footer-inner">
         <p>&copy; 2026 Yoryon</p>
         <nav class="footer-nav" aria-label="页脚导航">
-          {navItems.map((item) => (
+          {navItems.filter((item) => item.id !== "home").map((item) => (
             <a href={isHome ? item.homeHref : item.siteHref}>{item.label}</a>
           ))}
-          <a href="https://github.com/nanzhi84" target="_blank" rel="noopener noreferrer">GitHub</a>
         </nav>
       </div>
     </footer>

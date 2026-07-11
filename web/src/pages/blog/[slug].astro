@@ -20,7 +20,12 @@ const { Content } = await render(post);
 const formattedDate = post.data.pubDate.toISOString().slice(0, 10);
 ---
 
-<SiteShell title={`${post.data.title} | Yoryon`} description={post.data.description} activeNav="thinking">
+<SiteShell
+  title={`${post.data.title} | Yoryon`}
+  description={post.data.description}
+  activeNav="thinking"
+  bodyClass="content-detail-page"
+>
   <main class="post-main container">
     <article class="post-shell reveal">
       <a class="back-link" href="/blog/">← 返回 Thinking</a>

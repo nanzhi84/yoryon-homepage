@@ -1,5 +1,5 @@
 ---
-title: RMGAP 奖励模型偏好泛化评测基准
+title: RMGAP奖励模型评测基准
 summary: 系统衡量奖励模型能否识别不同用户对同一任务的偏好差异，覆盖 Chat、Writing、Reasoning、Safety 四类场景。
 role: 第一作者 · 评测设计与数据生产
 period: 2025.09 - 2025.12

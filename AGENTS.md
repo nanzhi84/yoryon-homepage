@@ -78,6 +78,35 @@ npm run dev -w @yoryon/<name>   # develop (base is "/")
 - `npm test -w @yoryon/gomoku` — run an experiment's tests.
 - `npm run preview` — preview the built main site.
 
+### Persistent local test server (macOS)
+
+When the user asks to start the test environment on macOS, run the main Astro/Vite site in a detached `tmux` session instead of a tool-bound foreground shell. This keeps the server alive after the agent task or terminal closes.
+
+- Session: `yoryon-homepage`
+- Fixed URL: `http://127.0.0.1:8002/`
+- Reuse the existing session when both `tmux has-session -t yoryon-homepage` and the HTTP health check succeed.
+- If the session exists but is unhealthy, inspect its logs, kill only that session, and recreate it.
+- Do not append another `--port` to `npm run dev`: that script already specifies port `8000`, and duplicate Astro port flags can fall back to the default port. Invoke the Astro binary directly from `web/` instead.
+
+From the repository root, start the persistent server with:
+
+```bash
+tmux new-session -d -s yoryon-homepage \
+  -c "$(git rev-parse --show-toplevel)/web" \
+  'exec ../node_modules/.bin/astro dev --host 127.0.0.1 --port 8002 --strictPort'
+```
+
+Verify, inspect, or stop it with:
+
+```bash
+curl -fsS http://127.0.0.1:8002/ >/dev/null
+tmux capture-pane -p -t yoryon-homepage:0.0 -S -200
+tmux attach -t yoryon-homepage
+tmux kill-session -t yoryon-homepage
+```
+
+`tmux` survives terminal and agent-session closure, but not a Mac reboot. Configure `launchd` only when the user explicitly asks for login startup or crash restart.
+
 ### Build & deploy flow
 
 `npm run build` has a fixed order (reversing it lets Astro wipe the experiment output):

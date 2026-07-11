@@ -25,7 +25,12 @@ const { Content } = await render(project);
 const hasProjectContent = typeof project.body === "string" && project.body.trim().length > 0;
 ---
 
-<SiteShell title={`${project.data.title} | Yoryon`} description={project.data.summary} activeNav="projects">
+<SiteShell
+  title={`${project.data.title} | Yoryon`}
+  description={project.data.summary}
+  activeNav="projects"
+  bodyClass="content-detail-page"
+>
   <main class="project-main container">
     <article class="project-detail reveal">
       <a class="back-link" href="/projects/">← 返回 Projects</a>
