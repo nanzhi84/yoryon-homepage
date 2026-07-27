@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">LiLink 校园慢匹配产品机制图</title>
+  <desc id="desc">从校园身份、每周报名到约束筛选、最大权匹配、统一揭晓，再由埋点和数据分析回流下一轮。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3158b8"/>
+    </marker>
+    <marker id="arrow-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#88857d"/>
+    </marker>
+    <style>
+      .sans { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
+      .mono { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; }
+      .eyebrow { font-size: 17px; letter-spacing: 2.5px; fill: #3158b8; }
+      .title { font-size: 48px; font-weight: 650; fill: #22211e; }
+      .subtitle { font-size: 20px; fill: #6f6b63; }
+      .step { font-size: 14px; letter-spacing: 1.5px; fill: #3158b8; }
+      .box-title { font-size: 23px; font-weight: 650; fill: #22211e; }
+      .box-copy { font-size: 17px; fill: #56534d; }
+      .box-copy-small { font-size: 15px; fill: #56534d; }
+      .loop-title { font-size: 20px; font-weight: 650; fill: #22211e; }
+      .loop-copy { font-size: 15px; fill: #6f6b63; }
+      .line { fill: none; stroke: #3158b8; stroke-width: 3; marker-end: url(#arrow); }
+      .line-muted { fill: none; stroke: #88857d; stroke-width: 2.5; marker-end: url(#arrow-muted); }
+      .line-dashed { fill: none; stroke: #3158b8; stroke-width: 2.5; stroke-dasharray: 9 9; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" fill="#faf9f6"/>
+  <text x="78" y="74" class="mono eyebrow">PRODUCT MECHANISM / WEEKLY MATCHING</text>
+  <text x="78" y="139" class="sans title">LiLink 校园慢匹配系统</text>
+  <text x="78" y="181" class="sans subtitle">把低信任陌生人社交拆成「身份门槛 → 周期意图 → 全局匹配 → 低压破冰 → 数据回流」</text>
+
+  <path d="M 306 360 H 350" class="line"/>
+  <path d="M 556 360 H 602" class="line"/>
+  <path d="M 986 360 H 1027" class="line"/>
+  <path d="M 1251 360 H 1292" class="line"/>
+
+  <g>
+    <rect x="76" y="250" width="230" height="220" rx="22" fill="#f2f0e9" stroke="#d8d3c8" stroke-width="2"/>
+    <text x="102" y="286" class="mono step">01 / TRUST</text>
+    <text x="102" y="329" class="sans box-title">校园身份与问卷</text>
+    <circle cx="112" cy="368" r="5" fill="#3158b8"/>
+    <text x="128" y="374" class="sans box-copy">学校邮箱域名</text>
+    <circle cx="112" cy="405" r="5" fill="#3158b8"/>
+    <text x="128" y="411" class="sans box-copy">校外引荐码</text>
+    <circle cx="112" cy="442" r="5" fill="#3158b8"/>
+    <text x="128" y="448" class="sans box-copy">偏好与边界问卷</text>
+  </g>
+
+  <g>
+    <rect x="350" y="250" width="206" height="220" rx="22" fill="#f2f0e9" stroke="#d8d3c8" stroke-width="2"/>
+    <text x="376" y="286" class="mono step">02 / INTENT</text>
+    <text x="376" y="329" class="sans box-title">每周主动报名</text>
+    <text x="376" y="374" class="sans box-copy">确认本周意愿</text>
+    <text x="376" y="410" class="sans box-copy">过滤沉默供给</text>
+    <text x="376" y="446" class="sans box-copy">形成固定期待</text>
+  </g>
+
+  <g>
+    <rect x="602" y="226" width="384" height="268" rx="24" fill="#e9eef9" stroke="#3158b8" stroke-width="2.5"/>
+    <text x="630" y="264" class="mono step">03 / MATCHING ENGINE</text>
+    <text x="630" y="307" class="sans box-title">可解释的全局匹配</text>
+    <rect x="630" y="334" width="146" height="62" rx="12" fill="#faf9f6" stroke="#b9c7e9"/>
+    <text x="703" y="360" text-anchor="middle" class="sans box-copy-small">8 维硬约束</text>
+    <text x="703" y="383" text-anchor="middle" class="sans box-copy-small">先筛可行边</text>
+    <rect x="798" y="334" width="160" height="62" rx="12" fill="#faf9f6" stroke="#b9c7e9"/>
+    <text x="878" y="360" text-anchor="middle" class="sans box-copy-small">兼容度与留存</text>
+    <text x="878" y="383" text-anchor="middle" class="sans box-copy-small">形成边权重</text>
+    <rect x="630" y="414" width="328" height="55" rx="12" fill="#3158b8"/>
+    <text x="794" y="449" text-anchor="middle" class="sans" font-size="18" font-weight="650" fill="#ffffff">最大权图匹配 · 全局最优配对</text>
+  </g>
+
+  <g>
+    <rect x="1027" y="250" width="224" height="220" rx="22" fill="#f2f0e9" stroke="#d8d3c8" stroke-width="2"/>
+    <text x="1053" y="286" class="mono step">04 / REVEAL</text>
+    <text x="1053" y="329" class="sans box-title">统一揭晓</text>
+    <text x="1053" y="374" class="sans box-copy">匹配证据</text>
+    <text x="1053" y="410" class="sans box-copy">LLM 解释理由</text>
+    <text x="1053" y="446" class="sans box-copy">破冰话题 / 规则兜底</text>
+  </g>
+
+  <g>
+    <rect x="1292" y="250" width="230" height="220" rx="22" fill="#f2f0e9" stroke="#d8d3c8" stroke-width="2"/>
+    <text x="1318" y="286" class="mono step">05 / SAFETY</text>
+    <text x="1318" y="329" class="sans box-title">低压连接与治理</text>
+    <text x="1318" y="374" class="sans box-copy">自主开启对话</text>
+    <text x="1318" y="410" class="sans box-copy">举报 / 拉黑</text>
+    <text x="1318" y="446" class="sans box-copy">进入下一周周期</text>
+  </g>
+
+  <rect x="146" y="574" width="1308" height="220" rx="28" fill="#ffffff" stroke="#d8d3c8" stroke-width="2"/>
+  <text x="178" y="617" class="mono step">DATA FEEDBACK LOOP / 足迹—意图—结果</text>
+
+  <g>
+    <rect x="188" y="649" width="230" height="104" rx="16" fill="#f7f5ef" stroke="#dfdbd1"/>
+    <text x="303" y="684" text-anchor="middle" class="sans loop-title">17 类关键事件</text>
+    <text x="303" y="716" text-anchor="middle" class="sans loop-copy">访问 · 问卷 · 报名 · 揭晓</text>
+  </g>
+  <path d="M 420 701 H 482" class="line-muted"/>
+  <g>
+    <rect x="484" y="649" width="230" height="104" rx="16" fill="#f7f5ef" stroke="#dfdbd1"/>
+    <text x="599" y="684" text-anchor="middle" class="sans loop-title">可靠数据层</text>
+    <text x="599" y="716" text-anchor="middle" class="sans loop-copy">Outbox · PII 白名单</text>
+  </g>
+  <path d="M 716 701 H 778" class="line-muted"/>
+  <g>
+    <rect x="780" y="649" width="230" height="104" rx="16" fill="#f7f5ef" stroke="#dfdbd1"/>
+    <text x="895" y="684" text-anchor="middle" class="sans loop-title">每日漏斗看板</text>
+    <text x="895" y="716" text-anchor="middle" class="sans loop-copy">注册 → 问卷 → 报名 → 匹配</text>
+  </g>
+  <path d="M 1012 701 H 1074" class="line-muted"/>
+  <g>
+    <rect x="1076" y="649" width="330" height="104" rx="16" fill="#e9eef9" stroke="#b9c7e9"/>
+    <text x="1241" y="684" text-anchor="middle" class="sans loop-title">供需诊断与下一轮迭代</text>
+    <text x="1241" y="716" text-anchor="middle" class="sans loop-copy">未匹配模型 AUC 0.802 · 调整问卷与权重</text>
+  </g>
+
+  <path d="M 1241 649 V 548 Q 1241 526 1219 526 H 816 Q 794 526 794 496" class="line-dashed"/>
+  <text x="948" y="549" class="mono" font-size="14" fill="#3158b8">FEED THE NEXT ROUND</text>
+</svg>

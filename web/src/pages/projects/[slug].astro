@@ -5,6 +5,7 @@ import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
   const projects = (await getCollection("projects"))
+    .filter((project) => !project.data.hidden)
     .sort((a, b) => a.data.order - b.data.order);
   const toSlug = (project) => project.slug ?? project.id.replace(/\.(mdoc|mdx?)$/, "");
 
@@ -48,6 +49,19 @@ const hasProjectContent = typeof project.body === "string" && project.body.trim(
         <div><dt>平台</dt><dd>{project.data.platform}</dd></div>
         <div><dt>技术</dt><dd>{project.data.stack}</dd></div>
       </dl>
+
+      {project.data.cover && (
+        <figure class="project-cover">
+          <img
+            src={project.data.cover}
+            alt={project.data.coverAlt ?? `${project.data.title} 项目封面`}
+            width="1600"
+            height="900"
+            decoding="async"
+          />
+          {project.data.coverCaption && <figcaption>{project.data.coverCaption}</figcaption>}
+        </figure>
+      )}
 
       {hasProjectContent ? (
         <section class="post-content project-content" aria-label="项目详情">

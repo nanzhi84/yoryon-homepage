@@ -6,7 +6,9 @@ period: 2025.12 - 至今
 type: 个人长期项目
 platform: Codex · Cursor · Claude Code
 stack: Skill · Prompt · Agent 工作流
-order: 3
+order: 5
+featured: false
+hidden: true
 tags:
   - Agent 工作流
   - Prompt 工程

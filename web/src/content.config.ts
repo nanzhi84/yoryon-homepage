@@ -29,7 +29,12 @@ const projects = defineCollection({
     platform: z.string(),
     stack: z.string(),
     order: z.number(),
-    tags: z.array(z.string()).default([])
+    tags: z.array(z.string()).default([]),
+    cover: z.string().optional(),
+    coverAlt: z.string().optional(),
+    coverCaption: z.string().optional(),
+    featured: z.boolean().default(false),
+    hidden: z.boolean().default(false)
   })
 });
 

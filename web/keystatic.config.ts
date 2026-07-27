@@ -98,6 +98,23 @@ export default config({
           validation: { isRequired: true }
         }),
         tags: tagsField,
+        cover: fields.text({
+          label: "Cover path"
+        }),
+        coverAlt: fields.text({
+          label: "Cover alt text"
+        }),
+        coverCaption: fields.text({
+          label: "Cover caption"
+        }),
+        featured: fields.checkbox({
+          label: "Show on home page",
+          defaultValue: false
+        }),
+        hidden: fields.checkbox({
+          label: "Hide from project archive",
+          defaultValue: false
+        }),
         content: fields.markdoc({
           label: "Project detail",
           extension: "md"

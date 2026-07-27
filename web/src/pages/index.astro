@@ -12,6 +12,7 @@ const allPosts = (await getCollection("blog"))
 const recentPosts = allPosts.slice(0, 5);
 
 const projects = (await getCollection("projects"))
+  .filter((project) => project.data.featured && !project.data.hidden)
   .sort((a, b) => a.data.order - b.data.order);
 ---
 
@@ -139,17 +140,19 @@ const projects = (await getCollection("projects"))
                   <figure
                     class="project-media"
                     data-project-media-item
-                    data-media-kind="placeholder"
+                    data-media-kind="image"
                     aria-hidden={index === 0 ? "false" : "true"}
                   >
-                    <div
-                      class="project-media-placeholder"
-                      role="img"
-                      aria-label={`${project.data.title} 媒体占位`}
-                    >
-                      <span>{project.data.title}</span>
-                      <small>MEDIA PLACEHOLDER<br />IMAGE / GIF / VIDEO</small>
-                    </div>
+                    {project.data.cover && (
+                      <img
+                        src={project.data.cover}
+                        alt={project.data.coverAlt ?? `${project.data.title} 项目封面`}
+                        width="1600"
+                        height="900"
+                        loading={index === 0 ? "eager" : "lazy"}
+                        decoding="async"
+                      />
+                    )}
                   </figure>
                 ))}
               </div>
@@ -189,6 +192,9 @@ const projects = (await getCollection("projects"))
                       <div class="project-accordion-copy">
                         <p class="project-accordion-stack">{project.data.stack}</p>
                         <p class="project-accordion-summary">{project.data.summary}</p>
+                        <a class="project-accordion-link" href={`/projects/${slug}/`}>
+                          查看完整项目复盘 <span aria-hidden="true">↗</span>
+                        </a>
                       </div>
                     </div>
                   </div>

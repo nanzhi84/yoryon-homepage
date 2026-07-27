@@ -866,8 +866,8 @@ main section[id] {
 
 .proj-row {
   display: grid;
-  grid-template-columns: var(--date-col) 1fr minmax(140px, 200px) auto;
-  align-items: baseline;
+  grid-template-columns: 56px minmax(240px, 320px) minmax(0, 1fr) auto;
+  align-items: center;
   gap: 24px;
   padding-block: 30px;
   border-bottom: 1px solid var(--line);
@@ -879,10 +879,28 @@ main section[id] {
 }
 
 .proj-num {
+  align-self: start;
+  padding-top: 2px;
   font-family: var(--mono);
   font-size: 13px;
   color: var(--muted);
   transition: color 0.25s ease;
+}
+
+.proj-cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+}
+
+.proj-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .proj-title {
@@ -911,6 +929,8 @@ main section[id] {
 }
 
 .proj-tags {
+  display: block;
+  margin-top: 14px;
   font-family: var(--mono);
   font-size: 12.5px;
   line-height: 1.8;
@@ -930,6 +950,10 @@ main section[id] {
 
 .proj-row:hover .proj-num {
   color: var(--ink);
+}
+
+.proj-row:hover .proj-cover img {
+  transform: scale(1.025);
 }
 
 .proj-row:hover .proj-arr {
@@ -1132,6 +1156,25 @@ main section[id] {
   color: var(--ink);
   font-size: 15.5px;
   line-height: 1.8;
+}
+
+.project-accordion-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 22px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--line-strong);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.5;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.project-accordion-link:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 /* ============ Projects / Thinking 之间的三维点阵过渡 ============ */
@@ -1636,7 +1679,7 @@ main section[id] {
 
 .project-detail {
   margin: 0 auto;
-  max-width: 760px;
+  max-width: 860px;
   padding-top: 40px;
 }
 
@@ -1692,6 +1735,26 @@ main section[id] {
   font-size: 14.5px;
   line-height: 1.65;
   color: var(--ink);
+}
+
+.project-cover {
+  margin: 42px 0 0;
+}
+
+.project-cover img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  background: var(--paper-raised);
+}
+
+.project-cover figcaption {
+  margin-top: 10px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.6;
 }
 
 .project-content {
@@ -2051,17 +2114,29 @@ main section[id] {
 
   .proj-row {
     grid-template-columns: 1fr auto;
-    row-gap: 4px;
+    row-gap: 18px;
   }
 
   .proj-num {
+    grid-column: 1;
+    padding-top: 0;
+  }
+
+  .proj-cover {
     grid-column: 1 / -1;
-    order: -1;
+  }
+
+  .proj-body {
+    grid-column: 1 / -1;
   }
 
   .proj-tags {
-    grid-column: 1 / -1;
-    order: 1;
+    margin-top: 12px;
+  }
+
+  .proj-arr {
+    grid-column: 2;
+    grid-row: 1;
   }
 }
 

@@ -4,6 +4,7 @@ import SiteShell from "../../layouts/SiteShell.astro";
 
 const getEntrySlug = (entry) => entry.slug ?? entry.id.replace(/\.(mdoc|mdx?)$/, "");
 const projects = (await getCollection("projects"))
+  .filter((project) => !project.data.hidden)
   .sort((a, b) => a.data.order - b.data.order);
 ---
 
@@ -30,12 +31,24 @@ const projects = (await getCollection("projects"))
             <li>
               <a class="proj-row reveal" href={`/projects/${getEntrySlug(project)}/`}>
                 <span class="proj-num">{String(index + 1).padStart(2, "0")}</span>
+                {project.data.cover && (
+                  <span class="proj-cover">
+                    <img
+                      src={project.data.cover}
+                      alt=""
+                      width="1600"
+                      height="900"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </span>
+                )}
                 <div class="proj-body">
                   <h3 class="proj-title">{project.data.title}</h3>
                   <p class="proj-desc">{project.data.summary}</p>
                   <p class="proj-meta">{project.data.period} · {project.data.role}</p>
+                  <span class="proj-tags">{project.data.stack}</span>
                 </div>
-                <span class="proj-tags">{project.data.stack}</span>
                 <span class="proj-arr" aria-hidden="true">&rarr;</span>
               </a>
             </li>
