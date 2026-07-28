@@ -48,12 +48,13 @@
   <g>
     <rect x="357" y="257" width="236" height="306" rx="24" fill="#eee8dc" stroke="#b99653" stroke-width="2"/>
     <text x="383" y="297" class="mono" font-size="14" letter-spacing="1.4" fill="#8c6825">02 / ORCHESTRATION</text>
-    <text x="383" y="343" class="sans" font-size="20" font-weight="650" fill="#22211e">Temporal WorkflowRun</text>
-    <text x="383" y="389" class="sans box-copy">API 负责准入与控制</text>
-    <text x="383" y="425" class="sans box-copy">Worker 执行长流程</text>
-    <text x="383" y="461" class="sans box-copy">重试 / 取消 / 恢复</text>
-    <rect x="383" y="493" width="184" height="45" rx="11" fill="#9a732b"/>
-    <text x="475" y="521" text-anchor="middle" class="sans" font-size="15" font-weight="650" fill="#ffffff">主链 19 · Agent 链 20</text>
+    <text x="475" y="341" text-anchor="middle" class="sans" font-size="21" font-weight="650" fill="#22211e">Temporal</text>
+    <text x="475" y="369" text-anchor="middle" class="sans" font-size="21" font-weight="650" fill="#22211e">WorkflowRun</text>
+    <text x="383" y="412" class="sans box-copy">API 负责准入与控制</text>
+    <text x="383" y="448" class="sans box-copy">Worker 执行长流程</text>
+    <text x="383" y="484" class="sans box-copy">重试 / 取消 / 恢复</text>
+    <rect x="383" y="505" width="184" height="43" rx="11" fill="#9a732b"/>
+    <text x="475" y="532" text-anchor="middle" class="sans" font-size="15" font-weight="650" fill="#ffffff">主链 19 · Agent 链 20</text>
   </g>
 
   <path d="M 595 410 H 633" class="line"/>
