@@ -2,11 +2,11 @@
 title: LiLink · 校园慢匹配社交
 summary: 为中外合办与国际交流学生设计的低压力校园社交产品：用每周批量匹配替代即时滑动，并以可解释算法、学校身份门槛和完整生产治理跑通真实用户闭环。
 role: 独立产品负责人（0 → 1）
-period: 2026.02 - 至今
+period: 2026.02 - 2026.07
 type: 个人产品（已上线）
 platform: Web · lilink.top
 stack: Next.js · NestJS · PostgreSQL · DeepSeek
-order: 1
+order: 3
 cover: /assets/project-covers/lilink-flow.svg
 coverAlt: LiLink 从校园身份、每周报名到硬约束筛选、最大权图匹配、统一揭晓和数据回流的产品机制图
 coverCaption: LiLink 产品机制图 · 从校园身份、每周报名到全局匹配与数据回流

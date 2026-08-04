@@ -6,7 +6,7 @@ period: 2026.06 - 至今
 type: AI 原生创作工具
 platform: Local-first Web App
 stack: Go · React · Eino · SQLite · FFmpeg
-order: 2
+order: 1
 cover: /assets/project-covers/rushes-flow.svg
 coverAlt: Rushes 从本地素材与结构化证据进入 Agent 决策，再通过原子时间线、Reducer、FFmpeg 和质量门禁导出成片的架构图
 coverCaption: Rushes 架构图 · 语义决策层与本地确定性执行层
