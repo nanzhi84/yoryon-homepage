@@ -46,8 +46,19 @@ const hasProjectContent = typeof project.body === "string" && project.body.trim(
         <div><dt>角色</dt><dd>{project.data.role}</dd></div>
         <div><dt>时间</dt><dd>{project.data.period}</dd></div>
         <div><dt>类型</dt><dd>{project.data.type}</dd></div>
-        <div><dt>平台</dt><dd>{project.data.platform}</dd></div>
-        <div><dt>技术</dt><dd>{project.data.stack}</dd></div>
+        {project.data.links.length > 0 && (
+          <div class="project-meta-links">
+            <dt>项目地址</dt>
+            <dd>
+              {project.data.links.map((link, index) => (
+                <>
+                  {index > 0 && <span aria-hidden="true"> · </span>}
+                  <a href={link.url}>{link.label}</a>
+                </>
+              ))}
+            </dd>
+          </div>
+        )}
       </dl>
 
       {project.data.cover && (

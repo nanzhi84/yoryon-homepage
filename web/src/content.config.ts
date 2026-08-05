@@ -28,6 +28,10 @@ const projects = defineCollection({
     type: z.string(),
     platform: z.string(),
     stack: z.string(),
+    links: z.array(z.object({
+      label: z.string(),
+      url: z.string().url()
+    })).default([]),
     order: z.number(),
     tags: z.array(z.string()).default([]),
     cover: z.string().optional(),

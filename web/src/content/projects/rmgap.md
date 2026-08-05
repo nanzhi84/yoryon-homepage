@@ -6,6 +6,11 @@ period: 2025.09 - 2025.12
 type: 研究项目（arXiv:2605.01831）
 platform: 论文 · 开源数据与代码
 stack: SGLang · PyTorch · 多模型评测
+links:
+  - label: GitHub
+    url: https://github.com/nanzhi84/RMGAP
+  - label: arXiv:2605.01831
+    url: https://arxiv.org/abs/2605.01831
 order: 4
 cover: /assets/project-covers/rmgap-pipeline.webp
 coverAlt: RMGAP 论文中的四阶段数据构建流程图，从种子数据筛选到回复生成、定向提示构造和质量控制
@@ -58,5 +63,3 @@ RMGAP 从三个层面衡量模型：
 - 个性化助手不能只依赖一个通用奖励分数；
 - 产品选型需要测试模型对偏好条件变化的敏感性，而非只看总体榜单；
 - 未来的奖励建模应显式表示用户或情境，而不是继续把人类偏好压成单一标量。
-
-论文、代码与数据：[GitHub](https://github.com/nanzhi84/RMGAP) · [arXiv:2605.01831](https://arxiv.org/abs/2605.01831)

@@ -6,6 +6,9 @@ period: 2026.06 - 至今
 type: AI 原生创作工具
 platform: Local-first Web App
 stack: Go · React · Eino · SQLite · FFmpeg
+links:
+  - label: GitHub · nanzhi84/Rushes
+    url: https://github.com/nanzhi84/Rushes
 order: 1
 cover: /assets/project-covers/rushes-flow.svg
 coverAlt: Rushes 从本地素材与结构化证据进入 Agent 决策，再通过原子时间线、Reducer、FFmpeg 和质量门禁导出成片的架构图
@@ -80,5 +83,3 @@ Rushes 不是把聊天框贴在剪辑器旁边，而是在重新定义模型、�
 - 时间线、版本、渲染和质检由确定性系统兜底。
 
 这种边界让 AI 真正进入编辑主流程，同时保留专业工具最重要的可预测性、可回退性和成片质量。
-
-项目地址：[GitHub · nanzhi84/Rushes](https://github.com/nanzhi84/Rushes)

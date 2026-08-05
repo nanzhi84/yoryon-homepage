@@ -92,6 +92,22 @@ export default config({
           label: "Stack",
           validation: { isRequired: true }
         }),
+        links: fields.array(
+          fields.object({
+            label: fields.text({
+              label: "Label",
+              validation: { isRequired: true }
+            }),
+            url: fields.text({
+              label: "URL",
+              validation: { isRequired: true }
+            })
+          }),
+          {
+            label: "Project links",
+            itemLabel: (props) => props.fields.label.value || "Link"
+          }
+        ),
         order: fields.integer({
           label: "Order",
           defaultValue: 1,

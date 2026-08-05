@@ -190,7 +190,6 @@ const projects = (await getCollection("projects"))
                   >
                     <div class="project-accordion-panel-inner" data-project-panel-inner>
                       <div class="project-accordion-copy">
-                        <p class="project-accordion-stack">{project.data.stack}</p>
                         <p class="project-accordion-summary">{project.data.summary}</p>
                         <a class="project-accordion-link" href={`/projects/${slug}/`}>
                           查看完整项目复盘 <span aria-hidden="true">↗</span>

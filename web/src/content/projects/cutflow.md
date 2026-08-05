@@ -6,6 +6,9 @@ period: 2026.05 - 2026.07
 type: B 端 AI 内容生产平台
 platform: Web Console · Production Pipeline
 stack: FastAPI · Temporal · PostgreSQL · React · FFmpeg
+links:
+  - label: GitHub · nanzhi84/CutFlow
+    url: https://github.com/nanzhi84/CutFlow
 order: 2
 cover: /assets/project-covers/cutflow-flow.svg
 coverAlt: CutFlow 以 Case 为长期边界，由 Temporal 将任务路由到规则数字人主链、Agent 智能剪辑链或 Seedance 信息流生成支链，三条链共享供应商、数据、媒体、运营与发布治理底座
@@ -146,5 +149,3 @@ CutFlow 把成本和成品率当作一等产品对象，而不是上线后再补
 ### AI 协作式研发
 
 整个 CutFlow 仓库由我借助 Claude Code、Codex 和 Cursor 完成。我把它们作为工程协作工具，用于理解代码库、实现功能、补充测试、重构、审查和排查问题；我自己负责提出问题、定义产品与技术契约、拆分工作流边界、判断实现是否符合真实业务，并对最终运行结果负责。由此形成了“需求与验收标准 → 架构和节点契约 → 代码与测试 → 审查与真实链路验证 → 复盘迭代”的完整研发闭环。
-
-项目地址：[GitHub · nanzhi84/CutFlow](https://github.com/nanzhi84/CutFlow)

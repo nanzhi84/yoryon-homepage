@@ -47,7 +47,6 @@ const projects = (await getCollection("projects"))
                   <h3 class="proj-title">{project.data.title}</h3>
                   <p class="proj-desc">{project.data.summary}</p>
                   <p class="proj-meta">{project.data.period} · {project.data.role}</p>
-                  <span class="proj-tags">{project.data.stack}</span>
                 </div>
                 <span class="proj-arr" aria-hidden="true">&rarr;</span>
               </a>

@@ -6,6 +6,11 @@ period: 2026.02 - 2026.07
 type: 个人产品（已上线）
 platform: Web · lilink.top
 stack: Next.js · NestJS · PostgreSQL · DeepSeek
+links:
+  - label: lilink.top
+    url: https://lilink.top
+  - label: GitHub
+    url: https://github.com/LiLink-Campus/LiLink
 order: 3
 cover: /assets/project-covers/lilink-flow.svg
 coverAlt: LiLink 从校园身份、每周报名到硬约束筛选、最大权图匹配、统一揭晓和数据回流的产品机制图
@@ -66,5 +71,3 @@ tags:
 - Next.js 前端、NestJS API、PostgreSQL 数据模型和匹配任务；
 - 111 个 API、38 张数据表，以及邮件队列、举报拉黑、备份与回滚等生产能力；
 - 基于真实漏斗和用户反馈持续调整问卷字段、匹配权重与揭晓体验。
-
-项目地址：[lilink.top](https://lilink.top) · [GitHub](https://github.com/LiLink-Campus/LiLink)
