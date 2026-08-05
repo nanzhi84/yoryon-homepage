@@ -90,5 +90,5 @@ Agent 本身的实现出乎意料地简单：就是基本块在循环中运行�
 
 ## 参考文章
 
-1. Anthropic, *Building Effective Agents*：[原文](https://www.anthropic.com/engineering/building-effective-agents) · [中文翻译版](https://app.notion.com/p/211fac457c58426a92aa13f58f73b48e)
-2. OpenAI, *A Practical Guide to Building Agents*：[原文](https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/) · [中文翻译版](https://app.notion.com/p/d30cd37ae08046f8bb30d5c5b8bb8637)
+1. Anthropic, *Building Effective Agents*：[原文](https://www.anthropic.com/engineering/building-effective-agents)
+2. OpenAI, *A Practical Guide to Building Agents*：[原文](https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/)
