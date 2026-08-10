@@ -25,7 +25,29 @@ const navItems = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="icon" type="image/jpeg" href="/yoryon_logo.jpg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    {isHome && (
+      <script is:inline>
+        if (typeof Worker === "function") {
+          try {
+            const worker = new Worker("/js/particle-worker.js");
+            worker.addEventListener("error", () => {
+              if (window.__yoryonParticleWorker === worker) {
+                worker.terminate();
+                delete window.__yoryonParticleWorker;
+              }
+            }, { once: true });
+            window.__yoryonParticleWorker = worker;
+            window.setTimeout(() => {
+              if (window.__yoryonParticleWorker === worker) {
+                worker.terminate();
+                delete window.__yoryonParticleWorker;
+              }
+            }, 10000);
+          } catch {}
+        }
+      </script>
+    )}
     <link rel="stylesheet" href="/css/styles.css" />
     <!-- 进场动效的初始隐藏态只在 JS 可用时生效，避免无 JS 时内容不可见 -->
     <script is:inline>document.documentElement.classList.add("js");</script>
@@ -62,7 +84,11 @@ const navItems = [
       </div>
     </footer>
 
-    <!-- 脚本加载失败时去掉 js 门控，reveal 元素回退为直接可见 -->
-    <script src="/js/script.js" defer onerror="document.documentElement.classList.remove('js')"></script>
+    <!-- 脚本加载失败时去掉 js 门控，并恢复由脚本接管的延迟图片 -->
+    <script
+      src="/js/script.js"
+      defer
+      onerror="document.documentElement.classList.remove('js');document.querySelectorAll('img[data-src],img[data-lazy-src]').forEach((image)=>{image.src=image.dataset.src||image.dataset.lazySrc})"
+    ></script>
   </body>
 </html>

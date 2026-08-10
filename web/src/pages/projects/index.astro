@@ -26,6 +26,7 @@ const projects = (await getCollection("projects"))
 
     <section class="section" id="all-projects">
       <div class="container">
+        <noscript><style>.proj-cover > img[data-lazy-src] { display: none; }</style></noscript>
         <ol class="proj-index">
           {projects.map((project, index) => (
             <li>
@@ -34,13 +35,22 @@ const projects = (await getCollection("projects"))
                 {project.data.cover && (
                   <span class="proj-cover">
                     <img
-                      src={project.data.cover}
+                      data-lazy-src={project.data.cover}
                       alt=""
                       width="1600"
                       height="900"
                       loading="lazy"
                       decoding="async"
                     />
+                    <noscript>
+                      <img
+                        src={project.data.cover}
+                        alt=""
+                        width="1600"
+                        height="900"
+                        loading="lazy"
+                      />
+                    </noscript>
                   </span>
                 )}
                 <div class="proj-body">

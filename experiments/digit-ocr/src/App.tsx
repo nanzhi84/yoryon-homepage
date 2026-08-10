@@ -1,6 +1,7 @@
 import { AlertCircle, BrainCircuit, Image as ImageIcon, RefreshCw, Upload } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { loadMeta, ModelMeta, Recognition, recognizeDigitString } from "./ocr";
+import { loadMeta, type ModelMeta } from "./model-meta";
+import type { Recognition } from "./ocr";
 import { preprocessFile, PreprocessResult } from "./preprocess";
 
 type Status = "idle" | "loading" | "ready" | "working" | "error";
@@ -34,6 +35,7 @@ export default function App() {
       try {
         const processed = await preprocessFile(file, meta.height, meta.width);
         setPreprocessed(processed);
+        const { recognizeDigitString } = await import("./ocr");
         const prediction = await recognizeDigitString(processed.tensor, meta, processed.lengthHint);
         setResult(prediction);
         setStatus("ready");

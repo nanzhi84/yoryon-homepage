@@ -206,6 +206,9 @@ function initProjectAccordion(root) {
   const mediaWindow = root.querySelector('[data-project-media-window]');
   const mediaTrack = root.querySelector('[data-project-media-track]');
   const mediaItems = Array.from(root.querySelectorAll('[data-project-media-item]'));
+  const deferredMediaImages = mediaItems.flatMap((mediaItem) => (
+    Array.from(mediaItem.querySelectorAll('img[data-src]'))
+  ));
 
   if (!items.length || items.length !== triggers.length || items.length !== panels.length) {
     return;
@@ -213,6 +216,20 @@ function initProjectAccordion(root) {
 
   const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   let activeIndex = Math.max(0, triggers.findIndex((trigger) => trigger.getAttribute('aria-expanded') === 'true'));
+
+  function loadMediaImage(image) {
+    const source = image.dataset.src;
+    if (!source) {
+      return;
+    }
+
+    image.src = source;
+    delete image.dataset.src;
+  }
+
+  function loadDeferredMedia() {
+    deferredMediaImages.forEach(loadMediaImage);
+  }
 
   function positionMedia() {
     if (!mediaTrack || !mediaItems.length) {
@@ -250,6 +267,7 @@ function initProjectAccordion(root) {
 
     activeIndex = nextIndex;
     root.dataset.activeProject = String(activeIndex);
+    mediaItems[activeIndex]?.querySelectorAll('img[data-src]').forEach(loadMediaImage);
 
     items.forEach((item, index) => {
       const isActive = index === activeIndex;
@@ -279,6 +297,18 @@ function initProjectAccordion(root) {
     mediaResizeObserver.observe(mediaWindow);
   }
 
+  if ('IntersectionObserver' in window && mediaWindow && deferredMediaImages.length) {
+    const mediaLoadObserver = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        loadDeferredMedia();
+        mediaLoadObserver.disconnect();
+      }
+    }, { rootMargin: '600px 0px' });
+    mediaLoadObserver.observe(mediaWindow);
+  } else {
+    loadDeferredMedia();
+  }
+
   if (typeof reduceMotionQuery.addEventListener === 'function') {
     reduceMotionQuery.addEventListener('change', syncMediaPlayback);
   } else if (typeof reduceMotionQuery.addListener === 'function') {
@@ -291,6 +321,35 @@ function initProjectAccordion(root) {
 document.querySelectorAll('[data-project-accordion]').forEach((root) => {
   initProjectAccordion(root);
 });
+
+const deferredImages = Array.from(document.querySelectorAll('img[data-lazy-src]'));
+if (deferredImages.length) {
+  const loadDeferredImage = (image) => {
+    const source = image.dataset.lazySrc;
+    if (!source) {
+      return;
+    }
+
+    image.src = source;
+    delete image.dataset.lazySrc;
+  };
+
+  if ('IntersectionObserver' in window) {
+    const imageObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        loadDeferredImage(entry.target);
+        imageObserver.unobserve(entry.target);
+      });
+    }, { rootMargin: '100px 0px' });
+    deferredImages.forEach((image) => imageObserver.observe(image));
+  } else {
+    deferredImages.forEach(loadDeferredImage);
+  }
+}
 
 const particleCanvas = document.querySelector('[data-particle-field]');
 
@@ -343,22 +402,23 @@ function initParticleField(canvas) {
   }
 
   function createAttractorPositions(count, attractor) {
-    const rawPositions = new Float32Array(count * 3);
     const positions = new Float32Array(count * 3);
+    let x = 0;
+    let y = 0;
+    let z = 0;
 
     for (let index = 0; index < count; index += 1) {
       const offset = index * 3;
-      const previousOffset = Math.max(0, offset - 3);
-      const x = index > 0 ? rawPositions[previousOffset] : 0;
-      const y = index > 0 ? rawPositions[previousOffset + 1] : 0;
-      const z = index > 0 ? rawPositions[previousOffset + 2] : 0;
+      const nextX = Math.fround(Math.sin(attractor.a * y) - Math.cos(attractor.b * x));
+      const nextY = Math.fround(Math.sin(attractor.c * x) - Math.cos(attractor.d * y));
+      const nextZ = Math.fround(Math.sin(attractor.e * x) - Math.cos(attractor.f * z));
 
-      rawPositions[offset] = Math.sin(attractor.a * y) - Math.cos(attractor.b * x);
-      rawPositions[offset + 1] = Math.sin(attractor.c * x) - Math.cos(attractor.d * y);
-      rawPositions[offset + 2] = Math.sin(attractor.e * x) - Math.cos(attractor.f * z);
-      positions[offset] = rawPositions[offset] * POINT_SCALE + attractor.xOffset;
-      positions[offset + 1] = rawPositions[offset + 1] * POINT_SCALE;
-      positions[offset + 2] = rawPositions[offset + 2] * POINT_SCALE;
+      positions[offset] = nextX * POINT_SCALE + attractor.xOffset;
+      positions[offset + 1] = nextY * POINT_SCALE;
+      positions[offset + 2] = nextZ * POINT_SCALE;
+      x = nextX;
+      y = nextY;
+      z = nextZ;
     }
 
     return positions;
@@ -417,12 +477,14 @@ function initParticleField(canvas) {
   const gl = canvas.getContext('webgl', {
     alpha: true,
     antialias: true,
-    depth: true,
+    depth: false,
     premultipliedAlpha: true,
     powerPreference: 'high-performance'
   });
 
   if (!gl) {
+    window.__yoryonParticleWorker?.terminate();
+    delete window.__yoryonParticleWorker;
     initCanvasFallback();
     return;
   }
@@ -436,13 +498,11 @@ function initParticleField(canvas) {
     '',
     'void main() {',
     '  vec3 point = mix(a_position_start, a_position_end, u_progress);',
-    '  float cosX = cos(u_rotation.x);',
-    '  float sinX = sin(u_rotation.x);',
-    '  point = vec3(point.x, point.y * cosX - point.z * sinX, point.y * sinX + point.z * cosX);',
+    '  float cosRotation = cos(u_rotation.x);',
+    '  float sinRotation = sin(u_rotation.x);',
+    '  point = vec3(point.x, point.y * cosRotation - point.z * sinRotation, point.y * sinRotation + point.z * cosRotation);',
     '',
-    '  float cosY = cos(u_rotation.y);',
-    '  float sinY = sin(u_rotation.y);',
-    '  point = vec3(point.x * cosY + point.z * sinY, point.y, -point.x * sinY + point.z * cosY);',
+    '  point = vec3(point.x * cosRotation + point.z * sinRotation, point.y, -point.x * sinRotation + point.z * cosRotation);',
     '',
     '  float focal = 1.0 / tan(0.3926990817);',
     '  float aspect = u_viewport.x / u_viewport.y;',
@@ -528,6 +588,10 @@ function initParticleField(canvas) {
   let height = 0;
   let dpr = 1;
   let pointCount = 0;
+  let pointCloudState = 'idle';
+  let pointCloudWorker = null;
+  let pointCloudTimeoutId = 0;
+  let animationRequested = false;
   let frameId = 0;
   let lastUpdateTime = 0;
   let rotationX = 0;
@@ -537,24 +601,98 @@ function initParticleField(canvas) {
   gl.useProgram(program);
   gl.enableVertexAttribArray(positionStartLocation);
   gl.enableVertexAttribArray(positionEndLocation);
-  gl.enable(gl.DEPTH_TEST);
-  gl.depthFunc(gl.LEQUAL);
   gl.disable(gl.BLEND);
   gl.clearColor(0, 0, 0, 0);
-  gl.clearDepth(1);
 
-  function uploadPointCloud() {
-    if (pointCount === POINT_COUNT) {
+  function uploadPointCloud(startPositions, endPositions) {
+    if (pointCloudState === 'ready') {
       return;
     }
 
-    pointCount = POINT_COUNT;
-    const startPositions = createAttractorPositions(pointCount, ATTRACTORS[0]);
-    const endPositions = createAttractorPositions(pointCount, ATTRACTORS[1]);
     gl.bindBuffer(gl.ARRAY_BUFFER, positionStartBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, startPositions, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(positionStartLocation, 3, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, positionEndBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, endPositions, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(positionEndLocation, 3, gl.FLOAT, false, 0, 0);
+    pointCount = POINT_COUNT;
+    pointCloudState = 'ready';
+    render();
+    if (animationRequested) {
+      start();
+    }
+  }
+
+  function buildPointCloudOnMainThread() {
+    const startPositions = createAttractorPositions(POINT_COUNT, ATTRACTORS[0]);
+    const endPositions = createAttractorPositions(POINT_COUNT, ATTRACTORS[1]);
+    uploadPointCloud(startPositions, endPositions);
+  }
+
+  function loadPointCloud() {
+    if (pointCloudState !== 'idle') {
+      return;
+    }
+
+    pointCloudState = 'loading';
+    if (typeof Worker !== 'function') {
+      buildPointCloudOnMainThread();
+      return;
+    }
+
+    const fallbackToMainThread = () => {
+      if (pointCloudState === 'ready') {
+        return;
+      }
+
+      pointCloudWorker?.terminate();
+      pointCloudWorker = null;
+      window.clearTimeout(pointCloudTimeoutId);
+      pointCloudTimeoutId = 0;
+      buildPointCloudOnMainThread();
+    };
+
+    const handlePointCloudResult = (data) => {
+      const { startPositions, endPositions, error } = data ?? {};
+      const expectedBytes = POINT_COUNT * 3 * Float32Array.BYTES_PER_ELEMENT;
+      if (
+        error
+        || !(startPositions instanceof ArrayBuffer)
+        || !(endPositions instanceof ArrayBuffer)
+        || startPositions.byteLength !== expectedBytes
+        || endPositions.byteLength !== expectedBytes
+      ) {
+        fallbackToMainThread();
+        return;
+      }
+
+      window.clearTimeout(pointCloudTimeoutId);
+      pointCloudTimeoutId = 0;
+      pointCloudWorker?.terminate();
+      pointCloudWorker = null;
+      uploadPointCloud(new Float32Array(startPositions), new Float32Array(endPositions));
+    };
+
+    try {
+      const preparedWorker = window.__yoryonParticleWorker;
+      delete window.__yoryonParticleWorker;
+      pointCloudWorker = preparedWorker instanceof Worker
+        ? preparedWorker
+        : new Worker('/js/particle-worker.js');
+      pointCloudWorker.addEventListener('message', (event) => {
+        handlePointCloudResult(event.data);
+      }, { once: true });
+      pointCloudWorker.addEventListener('error', fallbackToMainThread, { once: true });
+      pointCloudWorker.addEventListener('messageerror', fallbackToMainThread, { once: true });
+      pointCloudTimeoutId = window.setTimeout(fallbackToMainThread, 5000);
+      pointCloudWorker.postMessage({
+        count: POINT_COUNT,
+        pointScale: POINT_SCALE,
+        attractors: ATTRACTORS
+      });
+    } catch {
+      fallbackToMainThread();
+    }
   }
 
   function render() {
@@ -562,14 +700,7 @@ function initParticleField(canvas) {
       return;
     }
 
-    gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.useProgram(program);
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionStartBuffer);
-    gl.vertexAttribPointer(positionStartLocation, 3, gl.FLOAT, false, 0, 0);
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionEndBuffer);
-    gl.vertexAttribPointer(positionEndLocation, 3, gl.FLOAT, false, 0, 0);
-    gl.uniform2f(viewportLocation, width, height);
+    gl.clear(gl.COLOR_BUFFER_BIT);
     gl.uniform2f(rotationLocation, rotationX, rotationY);
     gl.uniform1f(progressLocation, clamp(morphProgress, 0, 1));
     gl.drawArrays(gl.POINTS, 0, pointCount);
@@ -588,7 +719,9 @@ function initParticleField(canvas) {
     dpr = nextDpr;
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
-    uploadPointCloud();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.uniform2f(viewportLocation, width, height);
+    loadPointCloud();
     render();
   }
 
@@ -619,10 +752,12 @@ function initParticleField(canvas) {
 
     lastUpdateTime = 0;
     canvas.style.transform = 'none';
+    animationRequested = !reduceMotionQuery.matches && !document.hidden;
     if (reduceMotionQuery.matches) {
       morphProgress = MORPH_TRIGGER?.getBoundingClientRect().top < 0 ? 1 : 0;
       render();
-    } else if (!document.hidden) {
+    } else if (animationRequested && pointCloudState === 'ready') {
+      animationRequested = false;
       frameId = window.requestAnimationFrame(frame);
     }
   }
@@ -697,6 +832,7 @@ function initEventHorizonField(canvas) {
   let width = 0;
   let height = 0;
   let dpr = 1;
+  let responsiveScale = BASE_SCALE;
   let rotationX = 0;
   let rotationY = 0;
   let rotationZ = 0;
@@ -704,12 +840,16 @@ function initEventHorizonField(canvas) {
   let animationScale = 1;
   let frameId = 0;
   let lastUpdateTime = 0;
+  const initialCanvasRect = canvas.getBoundingClientRect();
+  let isCanvasVisible = initialCanvasRect.bottom > 0 && initialCanvasRect.top < window.innerHeight;
   let drawScene = () => {};
+  let viewportLocation = null;
+  let pixelRatioLocation = null;
 
   const gl = canvas.getContext('webgl', {
     alpha: true,
     antialias: true,
-    depth: true,
+    depth: false,
     premultipliedAlpha: true,
     powerPreference: 'high-performance'
   });
@@ -725,17 +865,13 @@ function initEventHorizonField(canvas) {
       'void main() {',
       '  vec3 point = a_position * u_object_scale;',
       '',
-      '  float cosZ = cos(u_rotation.z);',
-      '  float sinZ = sin(u_rotation.z);',
-      '  point = vec3(point.x * cosZ - point.y * sinZ, point.x * sinZ + point.y * cosZ, point.z);',
+      '  float cosRotation = cos(u_rotation.x);',
+      '  float sinRotation = sin(u_rotation.x);',
+      '  point = vec3(point.x * cosRotation - point.y * sinRotation, point.x * sinRotation + point.y * cosRotation, point.z);',
       '',
-      '  float cosY = cos(u_rotation.y);',
-      '  float sinY = sin(u_rotation.y);',
-      '  point = vec3(point.x * cosY + point.z * sinY, point.y, -point.x * sinY + point.z * cosY);',
+      '  point = vec3(point.x * cosRotation + point.z * sinRotation, point.y, -point.x * sinRotation + point.z * cosRotation);',
       '',
-      '  float cosX = cos(u_rotation.x);',
-      '  float sinX = sin(u_rotation.x);',
-      '  point = vec3(point.x, point.y * cosX - point.z * sinX, point.y * sinX + point.z * cosX);',
+      '  point = vec3(point.x, point.y * cosRotation - point.z * sinRotation, point.y * sinRotation + point.z * cosRotation);',
       '',
       '  float focal = 1.0 / tan(0.3926990817);',
       '  float aspect = u_viewport.x / u_viewport.y;',
@@ -796,10 +932,10 @@ function initEventHorizonField(canvas) {
     }
 
     const positionLocation = gl.getAttribLocation(program, 'a_position');
-    const viewportLocation = gl.getUniformLocation(program, 'u_viewport');
+    viewportLocation = gl.getUniformLocation(program, 'u_viewport');
     const rotationLocation = gl.getUniformLocation(program, 'u_rotation');
     const objectScaleLocation = gl.getUniformLocation(program, 'u_object_scale');
-    const pixelRatioLocation = gl.getUniformLocation(program, 'u_pixel_ratio');
+    pixelRatioLocation = gl.getUniformLocation(program, 'u_pixel_ratio');
     const positionBuffer = gl.createBuffer();
     if (
       positionLocation < 0
@@ -817,27 +953,17 @@ function initEventHorizonField(canvas) {
     gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthFunc(gl.LEQUAL);
     gl.disable(gl.BLEND);
     gl.clearColor(0, 0, 0, 0);
-    gl.clearDepth(1);
 
     drawScene = () => {
       if (!width || !height || gl.isContextLost()) {
         return;
       }
 
-      const responsiveScale = Math.min(window.innerWidth / 1440, 1) * BASE_SCALE;
-      gl.viewport(0, 0, canvas.width, canvas.height);
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-      gl.useProgram(program);
-      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-      gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
-      gl.uniform2f(viewportLocation, width, height);
+      gl.clear(gl.COLOR_BUFFER_BIT);
       gl.uniform3f(rotationLocation, rotationX, rotationY, rotationZ);
       gl.uniform1f(objectScaleLocation, responsiveScale * animationScale);
-      gl.uniform1f(pixelRatioLocation, dpr);
       gl.drawArrays(gl.POINTS, 0, pointCount);
     };
   } else {
@@ -901,13 +1027,20 @@ function initEventHorizonField(canvas) {
     width = nextWidth;
     height = nextHeight;
     dpr = nextDpr;
+    responsiveScale = Math.min(window.innerWidth / 1440, 1) * BASE_SCALE;
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
-    if (!gl) {
+    if (gl) {
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.uniform2f(viewportLocation, width, height);
+      gl.uniform1f(pixelRatioLocation, dpr);
+    } else {
       const ctx = canvas.getContext('2d');
       ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
-    drawScene();
+    if (isCanvasVisible) {
+      drawScene();
+    }
   }
 
   function advanceScene() {
@@ -922,7 +1055,9 @@ function initEventHorizonField(canvas) {
     if (now - lastUpdateTime > UPDATE_INTERVAL) {
       lastUpdateTime = now;
       advanceScene();
-      drawScene();
+      if (isCanvasVisible) {
+        drawScene();
+      }
     }
     frameId = window.requestAnimationFrame(frame);
   }
@@ -940,7 +1075,9 @@ function initEventHorizonField(canvas) {
       rotationZ = 0;
       animationCount = 0;
       animationScale = 1;
-      drawScene();
+      if (isCanvasVisible) {
+        drawScene();
+      }
     } else if (!document.hidden) {
       frameId = window.requestAnimationFrame(frame);
     }
@@ -964,6 +1101,20 @@ function initEventHorizonField(canvas) {
     resizeObserver.observe(canvas);
   } else {
     window.addEventListener('resize', queueResize);
+  }
+
+  if (typeof IntersectionObserver === 'function') {
+    const visibilityObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        isCanvasVisible = entry.isIntersecting;
+        if (isCanvasVisible) {
+          drawScene();
+        }
+      });
+    }, { rootMargin: '200px 0px' });
+    visibilityObserver.observe(canvas);
+  } else {
+    isCanvasVisible = true;
   }
 
   if (typeof reduceMotionQuery.addEventListener === 'function') {

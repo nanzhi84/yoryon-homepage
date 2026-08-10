@@ -1,17 +1,7 @@
-import * as ort from "onnxruntime-web";
-import ortWasmMjs from "onnxruntime-web/ort-wasm-simd-threaded.jsep.mjs?url";
-import ortWasmBinary from "onnxruntime-web/ort-wasm-simd-threaded.jsep.wasm?url";
-
-export type ModelMeta = {
-  inputName: string;
-  outputName: string;
-  height: number;
-  width: number;
-  channels: number;
-  blankIndex: number;
-  digits: string;
-  maxLabelLength: number;
-};
+import * as ort from "onnxruntime-web/wasm";
+import ortWasmMjs from "onnxruntime-web/ort-wasm-simd-threaded.mjs?url";
+import ortWasmBinary from "onnxruntime-web/ort-wasm-simd-threaded.wasm?url";
+import { assetPath, type ModelMeta } from "./model-meta";
 
 export type Recognition = {
   text: string;
@@ -30,9 +20,6 @@ type Candidate = {
 };
 
 let sessionPromise: Promise<ort.InferenceSession> | null = null;
-let metaPromise: Promise<ModelMeta> | null = null;
-
-const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path}`;
 
 ort.env.wasm.wasmPaths = {
   mjs: ortWasmMjs,
@@ -40,18 +27,6 @@ ort.env.wasm.wasmPaths = {
 };
 ort.env.wasm.numThreads = 1;
 ort.env.wasm.proxy = false;
-
-export async function loadMeta(): Promise<ModelMeta> {
-  if (!metaPromise) {
-    metaPromise = fetch(assetPath("models/digit-string-crnn.json")).then((response) => {
-      if (!response.ok) {
-        throw new Error("模型配置未找到");
-      }
-      return response.json();
-    });
-  }
-  return metaPromise;
-}
 
 async function loadSession(): Promise<ort.InferenceSession> {
   if (!sessionPromise) {

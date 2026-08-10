@@ -11,6 +11,11 @@ const shouldMountKeystatic = process.env.SKIP_KEYSTATIC !== "true";
 export default defineConfig({
   site: "https://yoryon.com",
   output: "static",
+  image: {
+    layout: "constrained",
+    responsiveStyles: true,
+    breakpoints: [320, 480, 640, 750, 828, 1080, 1280, 1668, 2048, 2560]
+  },
   markdown: {
     shikiConfig: { theme: "github-light" },
     // remark-cjk-friendly: CommonMark 的强调闭合规则会让「**……？**汉字」这类

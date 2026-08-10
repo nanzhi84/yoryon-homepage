@@ -145,7 +145,8 @@ const projects = (await getCollection("projects"))
                   >
                     {project.data.cover && (
                       <img
-                        src={project.data.cover}
+                        src={index === 0 ? project.data.cover : undefined}
+                        data-src={index === 0 ? undefined : project.data.cover}
                         alt={project.data.coverAlt ?? `${project.data.title} 项目封面`}
                         width="1600"
                         height="900"
