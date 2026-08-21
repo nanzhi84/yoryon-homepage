@@ -3,7 +3,7 @@ title: "深入 DeepSeek Harness：当 Agent Loop 也成为插件"
 description: "拆解 DSH 的一切皆插件架构：从启动组装、Cordis 三件套到 turn/step 循环与 Session Log，核心是 agent loop 可整体热替换，为 agent 自进化铺好基础设施。"
 pubDate: 2026-08-19
 createdAt: 2026-08-19T17:31:55+08:00
-updatedDate: 2026-08-20
+updatedDate: 2026-08-21
 category: Tech
 tags:
   - "Harness"
@@ -14,7 +14,7 @@ readingTime: 8 min read
 featured: false
 draft: false
 ---
-2026 年 8 月 13 日，DeepSeek 发布了自己的第一个 agent harness，名字就叫 DSH（DeepSeek Harness），代码开源。配套论文里满是范畴论符号，第一眼很容易让人怀疑：这会不会又是理论上很优美、工程里没人用的设计？但翻开代码就会发现，DSH 与 Codex、Claude Code 这些主流 harness 的差异是结构性的：其他 harness 把 agent loop 写死在内核里，DSH 把它做成了一个可以在运行中整体替换的插件，这个选择的后果延伸到了架构的每个角落。
+2026 年 8 月 13 日，DeepSeek 发布了自己的第一个 agent harness，名字就叫 DSH（DeepSeek Harness）。DSH 与 Codex、Claude Code 这些主流 harness 的差异是结构性的：其他 harness 把 agent loop 写死在内核里，DSH 把它做成了一个可以在运行中整体替换的插件，这个选择的后果延伸到了架构的每个角落。
 
 这篇博客循序渐进地回答四个问题：DSH 是什么？一次运行如何组装出来？运行起来之后，循环与日志如何协作？以及这套架构究竟适合谁？
 
