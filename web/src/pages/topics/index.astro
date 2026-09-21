@@ -1,0 +1,7 @@
+---
+import ArchiveShell from "../../layouts/ArchiveShell.astro";
+import Orbit from "../../components/life/Orbit.astro";
+import {getLifeGraph} from "../../lib/open-life";
+const graph=await getLifeGraph();
+---
+<ArchiveShell title="主题" description="从一个好奇的问题开始，探索跨越时间的思考。" active="topics"><header class="archive-page-heading"><Orbit/><p class="archive-kicker">FOLLOW YOUR CURIOSITY</p><h1>好奇心，是一切连接的起点。</h1><p>从一个主题进入，发现跨越时间的思考。</p></header><div class="topic-directory">{graph.topics.map((topic,index)=><a href={`/topics/${topic.id}/`}><span class="topic-index">0{index+1}</span><h2>{topic.title}</h2><p>{topic.summary}</p><span>{graph.contents.filter(c=>c.topicIds.includes(topic.id)).length} 篇内容 ↗</span></a>)}</div></ArchiveShell>

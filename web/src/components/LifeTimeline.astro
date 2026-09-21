@@ -1,0 +1,26 @@
+---
+import {getLifeGraph} from "../lib/open-life";
+import ExploreNav from "./life/ExploreNav.astro";
+import {nodeLabels} from "../data/open-life";
+const {nodes}=await getLifeGraph();
+const dated=nodes.filter(n=>n.startDate).sort((a,b)=>b.startDate!.localeCompare(a.startDate!));
+const years=[...new Set(dated.map(n=>n.startDate!.slice(0,4)))];
+---
+<section class="archive-timeline life-container" id="timeline" data-long-timeline>
+ <ExploreNav active="timeline"/>
+ <header class="timeline-heading"><h2>LIFE TIMELINE</h2><p><span>● 阶段</span><span>◆ 决策</span><span>◉ 里程碑</span><span>⋯ 项目</span></p></header>
+ <div class="timeline-browser">
+  <nav class="timeline-years" aria-label="按年份探索人生">{years.map(year=><a href={`#life-year-${year}`} data-year-link={year}><span>{year}</span><i aria-hidden="true"></i></a>)}</nav>
+  <div class="timeline-segments">{years.map(year=><section id={`life-year-${year}`} data-year-panel={year} aria-label={`${year} 年的经历`}>
+   <h3 class="timeline-year-title">{year}<span>沿着时间，继续探索。</span></h3>
+   <ol class="timeline-segment-list">{dated.filter(n=>n.startDate!.startsWith(year)).map((node,index)=><li class:list={["timeline-entry",`entry-${node.type}`]} data-timeline-entry>
+    <svg class="timeline-entry-curve" viewBox="0 0 120 150" preserveAspectRatio="none" aria-hidden="true"><path d={index%2?'M60 0 C60 20 35 26 35 50 S60 105 60 150':'M60 0 C60 20 85 26 85 50 S60 105 60 150'}/>{node.type==='milestone'&&<circle class="timeline-node-ring" cx={index%2?35:85} cy="50" r="8"/>}{node.type==='decision'?<path class="timeline-node-decision" d={`M${index%2?35:85} 44 l6 6 -6 6 -6 -6 Z`}/>:<circle cx={index%2?35:85} cy="50" r={node.type==='phase'?5:4}/> }</svg>
+    <time datetime={node.startDate}>{node.startDate?.slice(5).replace(/-/g,'.')}</time>
+    <a class="timeline-entry-link" href={`/nodes/${node.id}/`}><span class="entry-type">{nodeLabels[node.type]}</span><strong>{node.title}</strong><span class="entry-summary">{node.summary}</span><span class="entry-action">进入这段经历 ↗</span></a>
+    {node.type==='project'&&<div class="timeline-project-span"><svg viewBox="0 0 140 110" preserveAspectRatio="none" aria-hidden="true"><path d="M10 8 C125 8 125 100 10 100"/><circle cx="10" cy="8" r="2"/><circle cx="10" cy="100" r="2"/></svg><span>{node.status==='ongoing'?'进行中':node.endDate?.replace(/-/g,'.')??'已结束'}</span><small>项目轨迹</small></div>}
+   </li>)}</ol>
+  </section>)}</div>
+ </div>
+ <div class="timeline-pager" hidden><button type="button" data-timeline-prev>← 较新的经历</button><span data-timeline-status role="status" aria-live="polite"></span><button type="button" data-timeline-next>更早的经历 →</button></div>
+</section>
+<script>import "../scripts/life-timeline";</script>

@@ -1,0 +1,7 @@
+---
+import ArchiveShell from "../../layouts/ArchiveShell.astro";
+import CollectionLink from "../../components/life/CollectionLink.astro";
+import Orbit from "../../components/life/Orbit.astro";
+import {readingCollections} from "../../data/open-life";
+---
+<ArchiveShell title="系列" description="沿着一条线索，把一个问题慢慢读懂。" active="collections"><header class="archive-page-heading"><Orbit/><p class="archive-kicker">ONE STORY LEADS TO ANOTHER</p><h1>沿着一条线索，读下去。</h1><p>将散落的记录，整理成值得连续阅读的篇章。</p></header><div class="collection-grid">{readingCollections.map(collection=><CollectionLink collection={collection}/>)}</div></ArchiveShell>

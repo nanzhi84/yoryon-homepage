@@ -1,0 +1,11 @@
+---
+import {nodeLabels} from "../../data/open-life";
+import type {LifeNode} from "../../data/open-life";
+interface Props {node:LifeNode; index?:number}
+const {node,index=0}=Astro.props;
+---
+<li class:list={["timeline-event",`node-${node.type}`]} style={`--bend:${index%2===0?'0px':'18px'}`}>
+ <span class="timeline-date">{node.startDate?.replace(/-/g,'.')??'待补日期'}</span>
+ <a href={`/nodes/${node.id}/`} class="timeline-node"><span class="node-dot" aria-hidden="true"></span><div><span class="node-kind">{nodeLabels[node.type]}{node.status==='ongoing'?' · 进行中':''}</span><h3>{node.title}</h3><p>{node.summary}</p><span class="node-open">进入这段经历 ↗</span></div></a>
+ {node.endDate&&<span class="node-end">至 {node.endDate.replace(/-/g,'.') }</span>}
+</li>

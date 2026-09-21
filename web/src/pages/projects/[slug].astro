@@ -34,7 +34,7 @@ const hasProjectContent = typeof project.body === "string" && project.body.trim(
 >
   <main class="project-main container">
     <article class="project-detail reveal">
-      <a class="back-link" href="/projects/">← 返回 Projects</a>
+      <a class="back-link" href="/projects/">← 返回项目探索</a>
 
       <header class="project-detail-header">
         <p class="section-label">Project</p>
@@ -85,6 +85,7 @@ const hasProjectContent = typeof project.body === "string" && project.body.trim(
         </section>
       )}
 
+      <p><a class="archive-text-link" href={`/nodes/${project.slug ?? project.id.replace(/\.(mdoc|mdx?)$/, "")}/`}>探索这个项目的人生节点 ↗</a></p>
       <nav class="project-pager" aria-label="项目切换">
         <a href={`/projects/${previousSlug}/`}>← {previousProject.data.title}</a>
         <a href={`/projects/${nextSlug}/`}>{nextProject.data.title} →</a>

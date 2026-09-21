@@ -1,0 +1,6 @@
+---
+interface Props {startDate?:string;endDate?:string;status:string}
+const {startDate,endDate,status}=Astro.props;
+const format=(date:string)=>date.replace(/-/g,'.');
+---
+<div class:list={["phase-duration",{"phase-undated":!startDate}]} aria-label="经历时间范围"><span>{startDate?`开始 · ${format(startDate)}`:'起点待补充'}</span><i aria-hidden="true"></i><span>{endDate?format(endDate):status==='ongoing'?'进行中':'时间整理中'}</span></div>

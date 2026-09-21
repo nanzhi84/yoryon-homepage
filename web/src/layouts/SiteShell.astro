@@ -2,18 +2,19 @@
 interface Props {
   title: string;
   description: string;
-  activeNav?: "home" | "about" | "thinking" | "projects" | "contact";
+  activeNav?: "home" | "about" | "thinking" | "projects" | "contact" | "life" | "subscribe";
   bodyClass?: string;
+  particleBackground?: boolean;
 }
 
-const { title, description, activeNav, bodyClass } = Astro.props;
+const { title, description, activeNav, bodyClass, particleBackground = false } = Astro.props;
 const isHome = activeNav === "home";
+const showParticles = isHome || particleBackground;
+const isLife = ["home", "thinking", "projects", "life"].includes(activeNav ?? "");
 
 const navItems = [
-  { id: "home", label: "Home", homeHref: "#home", siteHref: "/#home" },
-  { id: "about", label: "About", homeHref: "#about", siteHref: "/#about" },
-  { id: "projects", label: "Projects", homeHref: "#projects", siteHref: "/projects/" },
-  { id: "thinking", label: "Thinking", homeHref: "#thinking", siteHref: "/blog/" },
+  { id: "home", label: "开源我的人生", homeHref: "#home", siteHref: "/" },
+  { id: "about", label: "关于", homeHref: "#about", siteHref: "/#about" },
   { id: "contact", label: "Contact", homeHref: "#contact", siteHref: "/#contact" }
 ];
 ---
@@ -26,7 +27,7 @@ const navItems = [
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="icon" type="image/png" href="/favicon.png" />
-    {isHome && (
+    {showParticles && (
       <script is:inline>
         if (typeof Worker === "function") {
           try {
@@ -49,35 +50,34 @@ const navItems = [
       </script>
     )}
     <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/open-life.css" />
+    <link rel="stylesheet" href="/css/life-archive.css" />
     <!-- 进场动效的初始隐藏态只在 JS 可用时生效，避免无 JS 时内容不可见 -->
     <script is:inline>document.documentElement.classList.add("js");</script>
   </head>
-  <body class={bodyClass}>
+  <body class:list={["life-shell", bodyClass]}>
     <header class="site-header" id="top">
       <div class="container header-inner">
         <a class="brand" href={isHome ? "#home" : "/#home"}>Yoryon</a>
-        <button type="button" class="nav-toggle" id="nav-toggle" aria-controls="site-nav" aria-expanded="false" aria-label="Open menu">
-          <span class="nav-toggle-bar" aria-hidden="true"></span>
-          <span class="nav-toggle-bar" aria-hidden="true"></span>
-          <span class="nav-toggle-bar" aria-hidden="true"></span>
-        </button>
         <nav class="nav" id="site-nav" aria-label="主导航">
           {navItems.map((item) => (
-            <a href={isHome ? item.homeHref : item.siteHref} class:list={["nav-link", { "is-active": activeNav === item.id }]}>
+            <a href={isHome ? item.homeHref : item.siteHref} class:list={["nav-link", { "is-active": item.id === "home" ? isLife : activeNav === item.id }]} aria-current={(item.id === "home" ? isLife : activeNav === item.id) ? "page" : undefined}>
               {item.label}
             </a>
           ))}
         </nav>
+        <a class:list={["nav-subscribe", { "is-active": activeNav === "subscribe" }]} href="/subscribe/" aria-current={activeNav === "subscribe" ? "page" : undefined}>订阅 <span aria-hidden="true">↗</span></a>
       </div>
     </header>
 
+    {showParticles && <canvas class="hero-particles" data-particle-field aria-hidden="true"></canvas>}
     <slot />
 
     <footer class="site-footer">
       <div class="container footer-inner">
         <p>&copy; 2026 Yoryon</p>
         <nav class="footer-nav" aria-label="页脚导航">
-          {navItems.filter((item) => item.id !== "home").map((item) => (
+          {isHome ? <a href="#home">回到顶部 <span aria-hidden="true">↑</span></a> : navItems.map((item) => (
             <a href={isHome ? item.homeHref : item.siteHref}>{item.label}</a>
           ))}
         </nav>

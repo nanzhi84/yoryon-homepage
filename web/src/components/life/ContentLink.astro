@@ -1,0 +1,10 @@
+---
+import AccessBadge from "./AccessBadge.astro";
+import type {LifeContent} from "../../lib/open-life";
+interface Props {content: LifeContent; number?: number; compact?: boolean}
+const {content,number,compact=false}=Astro.props;
+---
+<a class:list={["archive-content-link",{compact}]} href={content.href}>
+ {number!==undefined&&<span class="chapter-number">{String(number+1).padStart(2,'0')}</span>}
+ <div><h3>{compact?content.displayTitle:content.title} <AccessBadge visibility={content.visibility}/></h3>{!compact&&<p>{content.summary}</p>}</div><span aria-hidden="true">↗</span>
+</a>

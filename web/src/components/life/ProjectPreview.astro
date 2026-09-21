@@ -1,0 +1,17 @@
+---
+import {topics} from "../../data/open-life";
+import KnowledgeGraph from "./KnowledgeGraph.astro";
+import {slugOf} from "../../lib/open-life";
+import type {LifeGraph} from "../../lib/open-life";
+interface Props {project:LifeGraph['projects'][number]}
+const {project}=Astro.props;
+const id=slugOf(project),title=project.data.title.split(' · ')[0];
+const context=[project.data.title,project.data.summary,...project.data.tags].join(' ').toLowerCase();
+const topic=topics.find(t=>t.match.some(keyword=>context.includes(keyword)));
+const graphNodes=[
+ {id:'life',title:'这段经历',summary:project.data.period,href:`/nodes/${id}/`,x:29,y:77,side:'left'},
+ {id:'topic',title:topic?.title??'主题',summary:'关联思考',href:topic?`/topics/${topic.id}/`:'/topics/',x:70,y:20,side:'right'},
+ {id:'detail',title:'项目档案',summary:'过程与选择',href:`/projects/${id}/`,x:71,y:76,side:'right'},
+];
+---
+<article class="project-exploration"><div><h2><a href={`/projects/${id}/`}>{title}</a></h2><p class="project-tagline">{project.data.title.split(' · ')[1]}</p><p>{project.data.summary}</p><nav class="related-topics"><a href={`/projects/${id}/`}>查看项目 ↗</a><a href={`/nodes/${id}/`}>阅读这段经历 ↗</a></nav></div><KnowledgeGraph title={title} href={`/projects/${id}/`} nodes={graphNodes} variant="project" label={`${title} 内容关联图`}/></article>

@@ -1,0 +1,29 @@
+---
+import ArchiveShell from "../../layouts/ArchiveShell.astro";
+import ContentLink from "../../components/life/ContentLink.astro";
+import AccessBadge from "../../components/life/AccessBadge.astro";
+import Orbit from "../../components/life/Orbit.astro";
+import {getLifeGraph} from "../../lib/open-life";
+export async function getStaticPaths(){const graph=await getLifeGraph();return graph.collections.map(collection=>({params:{slug:collection.id},props:{collection,graph}}))}
+const {collection,graph}=Astro.props;
+const contents=collection.contentIds.map(id=>graph.contents.find(c=>c.id===id)!);
+---
+<ArchiveShell variant="reference-series" title={collection.title} description={collection.summary} active="collections"><a class="archive-back" href="/collections/">← 全部系列</a><header class="archive-page-heading"><Orbit/><h1>{collection.title}</h1><p><span class="access-badge">{contents.length?'连续阅读':'正在整理'}</span></p><p>{collection.summary}</p></header>
+ {contents.length?<div class="series-layout" data-series={collection.id}><ol class="chapter-path">{contents.map((content,index)=><li data-chapter-index={index}><ContentLink content={content} number={index} compact/></li>)}</ol><aside class="series-preview"><p class="archive-kicker">BEGIN HERE</p><h2 data-preview-title>{contents[0].displayTitle}</h2><AccessBadge visibility={contents[0].visibility}/><p data-preview-summary>{contents[0].summary}</p><a class="archive-button" data-preview-link href={contents[0].href}>从第一篇开始 ↗</a><a class="archive-resume" data-resume hidden href={contents[0].href}>继续上次阅读 ↗</a><script type="application/json" data-chapter-previews set:html={JSON.stringify(contents.map(c=>({title:c.displayTitle,summary:c.summary,href:c.href,visibility:c.visibility}))).replace(/</g,'\u003c')}/><script type="application/json" data-series-paths set:html={JSON.stringify(contents.map(c=>c.href)).replace(/</g,'\u003c')}/></aside></div>:<div class="archive-empty"><h2>这组记录，正在整理。</h2><p>还没有发布的篇章。你可以先从已经公开的内容开始探索。</p><a class="archive-text-link" href="/collections/agent-map/">阅读 Agent 技术地图 ↗</a></div>}
+ <section class="archive-section"><h2>这些记录，与什么相连？</h2><nav class="related-topics">{collection.nodeIds.map(id=><a href={`/nodes/${id}/`}>{graph.nodes.find(n=>n.id===id)?.title} · 人生经历 ↗</a>)}{collection.topicIds.map(id=><a href={`/topics/${id}/`}>{graph.topics.find(t=>t.id===id)?.title} · 主题 ↗</a>)}</nav></section>
+ <script>document.querySelectorAll<HTMLElement>('[data-series]').forEach(el=>{try{const paths=JSON.parse(el.querySelector('[data-series-paths]')?.textContent??'[]');const saved=localStorage.getItem('life-reading:'+el.dataset.series);if(paths.includes(saved)){const link=el.querySelector<HTMLAnchorElement>('[data-resume]');if(link){link.href=saved!;link.hidden=false;}}}catch{}});</script>
+ <script>
+ document.querySelectorAll<HTMLElement>('[data-series]').forEach(series=>{
+  const data=JSON.parse(series.querySelector('[data-chapter-previews]')?.textContent??'[]');
+  const items=[...series.querySelectorAll<HTMLElement>('[data-chapter-index]')];
+  const select=(index:number)=>{const chapter=data[index];if(!chapter)return;
+   items.forEach((item,i)=>item.classList.toggle('chapter-selected',i===index));
+   series.querySelector('[data-preview-title]')!.textContent=chapter.title;
+   series.querySelector('[data-preview-summary]')!.textContent=chapter.summary;
+   const link=series.querySelector<HTMLAnchorElement>('[data-preview-link]')!;link.href=chapter.href;link.textContent=index===0?'从第一篇开始 ↗':'阅读这一篇 ↗';
+   const badge=series.querySelector<HTMLElement>('.series-preview .access-badge')!;badge.dataset.access=chapter.visibility;badge.textContent=chapter.visibility==='public'?'公开':chapter.visibility==='preview'?'可试读':'订阅篇章';
+  };
+  items.forEach((item,index)=>{item.addEventListener('pointerenter',()=>select(index));item.addEventListener('focusin',()=>select(index));});select(0);
+ });
+ </script>
+</ArchiveShell>

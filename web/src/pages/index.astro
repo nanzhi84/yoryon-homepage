@@ -1,273 +1,74 @@
 ---
-import { getCollection } from "astro:content";
+import LifeTimeline from "../components/LifeTimeline.astro";
 import SiteShell from "../layouts/SiteShell.astro";
-
-const getEntrySlug = (entry) => entry.slug ?? entry.id.replace(/\.(mdoc|mdx?)$/, "");
-// frontmatter 裸日期按 UTC 午夜解析，格式化必须用 UTC 取值，否则西半球时区会提前一天
-const formatDate = (date) => date.toISOString().slice(0, 10);
-
-const allPosts = (await getCollection("blog"))
-  .filter((post) => !post.data.draft)
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-const recentPosts = allPosts.slice(0, 5);
-
-const projects = (await getCollection("projects"))
-  .filter((project) => project.data.featured && !project.data.hidden)
-  .sort((a, b) => a.data.order - b.data.order);
+import { formatLifeDays, getLifeDays } from "../lib/life-clock";
 ---
 
 <SiteShell
-  title="Yoryon | 个人主页"
+  title="开源我的人生 | Yoryon"
   description="Yoryon（釉蓝yoryon）的个人主页：AI 产品、LLM 应用、Agent 工作流与模型评测的思考、写作和项目实践。"
   activeNav="home"
-  bodyClass="home-particle-page"
+  bodyClass="home-particle-page open-life-page archive-home"
 >
   <main class="home-main">
-    <section class="hero" id="home" aria-label="首页介绍">
-      <canvas class="hero-particles" data-particle-field aria-hidden="true"></canvas>
-      <nav class="hero-nav" aria-label="首屏导航">
-        <a href="#about" data-flicker-text>ABOUT</a>
-        <a href="#projects" data-flicker-text>PROJECTS</a>
-        <a href="#thinking" data-flicker-text>THINKING</a>
-        <a href="#contact" data-flicker-text>CONTACT</a>
-      </nav>
-      <div class="hero-brand-block">
-        <h1 class="hero-wordmark" data-flicker-text>Yoryon</h1>
-        <p class="hero-manifesto" data-flicker-text>我们已经越过事件视界<br />起飞已经开始</p>
-        <p class="hero-sub" data-flicker-text>We are past the event horizon;<br />the takeoff has started.</p>
-      </div>
-      <p class="hero-location" data-flicker-text>BUPT<br />AI Product<br />Beijing, China</p>
-      <a class="hero-scroll" href="#about" data-flicker-text>SCROLL &darr;</a>
+    <section class="archive-home-hero life-container" id="home" aria-label="开源我的人生">
+      <div><h1>开源我的人生</h1><div class="archive-life-clock"><span data-life-days>{formatLifeDays(getLifeDays())}</span> 天<small>SINCE <time datetime="2004-11-26">2004.11.26</time></small></div><p>经历、作品与思考，在这里发生。</p></div>
+      <aside>更大的世界<br/>始于真实的记录。<span>Life<br/>is a longer story.</span></aside>
     </section>
 
-    <section class="section about-section" id="about" data-particle-morph-trigger>
-      <div class="container about-layout">
-        <header class="about-heading">
-          <h2 class="about-title is-flicker-paused" data-flicker-text data-flicker-on-view>ABOUT ME</h2>
-        </header>
+    <LifeTimeline />
 
-        <div class="about-principle">
-          <h3 class="about-principle-title is-flicker-paused" data-flicker-text data-flicker-on-view>Philosophy</h3>
-          <p class="about-principle-label reveal">[ PRINCIBLE ]</p>
-          <p class="about-manifesto">
-            <span class="about-manifesto-line is-flicker-paused" data-flicker-text data-flicker-on-view>Invert</span>
-            <span class="about-manifesto-line is-flicker-paused" data-flicker-text data-flicker-on-view>always invert</span>
-          </p>
-        </div>
-
-        <div class="about-profile reveal" aria-label="Personal profile">
-          <p class="about-profile-kicker">Born in 2004</p>
-          <p class="about-profile-name">Yoryon</p>
-          <p class="about-profile-details">
-            <span>Information and</span>
-            <span>Computing Science</span>
-          </p>
-        </div>
-
-        <div class="about-narrative reveal">
-          <p class="about-narrative-label">[ WHO I AM ]</p>
-          <div class="about-narrative-columns">
-            <div class="about-narrative-copy about-narrative-copy-zh" lang="zh-CN">
-              <p>
-                我是 AI 降临派。<br />
-                不是谨慎地"利用 AI 提效"，而是把 AI 当作自己思维和创造力的延伸，<br />
-                毫无保留地拥抱这一代人独有的能力。
-              </p>
-              <p>
-                但我不只关心技术。<br />
-                一个产品怎么活下去，一个行业往哪里走，一笔钱该押在什么位置，<br />
-                这些问题和"系统该怎么设计"一样让我着迷。<br />
-                造东西和下注，在我眼里是同一件事。
-              </p>
-            </div>
-            <div class="about-narrative-copy about-narrative-copy-en" lang="en">
-              <p>
-                I'm all in on AI,<br />
-                not cautiously "leveraging it for efficiency,"<br />
-                but treating it as a genuine extension of how I think and create.
-              </p>
-              <p>
-                But I'm not just about the tech.<br />
-                How a product survives, where an industry is heading, where capital should go<br />
-                <span class="about-narrative-nowrap">— these</span> questions fascinate me just as much as how to architect a system.<br />
-                Building and betting, to me, are the same thing.
-              </p>
-            </div>
+    <section class="life-subscription-band" id="subscription" aria-labelledby="life-subscription-title">
+      <div class="life-container">
+        <div class="life-subscription-copy reveal">
+          <p class="life-eyebrow">SUBSCRIPTION</p>
+          <h2 id="life-subscription-title">让记录，继续发生。</h2>
+          <p>从公开内容开始，持续读下去。</p>
+          <div class="life-subscription-actions">
+            <a href="/subscribe/">了解订阅 <span class="life-arrow" aria-hidden="true">↗</span></a>
+            <span>内容订阅筹备中</span>
           </div>
         </div>
-
-        <section class="about-skill reveal" aria-labelledby="about-skill-title">
-          <h2
-            class="about-skill-title is-flicker-paused"
-            id="about-skill-title"
-            data-flicker-text
-            data-flicker-on-view
-          >My Skill</h2>
-          <div class="about-skill-content">
-            <p class="about-skill-label">[ WHAT I DO ]</p>
-            <div class="about-skill-copy" lang="zh-CN">
-              <p>
-                从 AI 视频生产线到校园社交产品，<br />
-                我一直在做的事情是：用 AI 重新定义一个产品该怎么运转。
-              </p>
-              <p>
-                从需求拆解、系统设计、pipeline 搭建，到部署上线和反复迭代，<br />
-                我习惯一个人跑完从 0 到 1 的全程。<br />
-                我知道哪些该交给 AI，哪些该自己决定。
-              </p>
-            </div>
-          </div>
-        </section>
       </div>
+      <canvas class="life-galaxy-particles" data-event-horizon-field data-particle-pattern="galaxy" aria-hidden="true"></canvas>
     </section>
 
-    <section class="section projects-section" id="projects">
-      <div class="container">
-        <header class="projects-header reveal">
-          <h2
-            class="about-skill-title is-flicker-paused"
-            data-flicker-text
-            data-flicker-on-view
-          >Projects</h2>
-          <a class="projects-all-link" href="/projects/">查看全部项目 &rarr;</a>
-        </header>
-
-        <div class="projects-showcase" data-project-accordion>
-          <div class="projects-media-column reveal">
-            <div class="projects-media-window" data-project-media-window>
-              <div class="projects-media-track" data-project-media-track>
-                {projects.map((project, index) => (
-                  <figure
-                    class="project-media"
-                    data-project-media-item
-                    data-media-kind="image"
-                    aria-hidden={index === 0 ? "false" : "true"}
-                  >
-                    {project.data.cover && (
-                      <img
-                        src={index === 0 ? project.data.cover : undefined}
-                        data-src={index === 0 ? undefined : project.data.cover}
-                        alt={project.data.coverAlt ?? `${project.data.title} 项目封面`}
-                        width="1600"
-                        height="900"
-                        loading={index === 0 ? "eager" : "lazy"}
-                        decoding="async"
-                      />
-                    )}
-                  </figure>
-                ))}
-              </div>
-            </div>
+    <section class="life-section life-about-section" id="about">
+      <div class="life-container">
+        <header class="life-about-heading reveal"><p class="life-eyebrow">ABOUT</p><h2>关于 Yoryon</h2></header>
+        <div class="life-about-grid">
+          <p class="life-philosophy reveal" lang="en">Invert,<br />always invert.</p>
+          <div class="life-about-copy reveal">
+            <h3>我是 AI 降临派。</h3>
+            <p>把 AI 当作自己思维和创造力的延伸，<br class="life-desktop-break" />毫无保留地拥抱这一代人独有的能力。</p>
+            <p>我关心技术，也关心产品如何活下去。<br class="life-desktop-break" />造东西和下注，在我眼里是同一件事。</p>
+            <p class="life-about-detail">从需求拆解、系统设计到上线迭代，<br class="life-desktop-break" />用 AI 重新定义一个产品该怎么运转。</p>
+            <span class="life-profile-meta">YORYON / AI PRODUCT / BORN IN 2004</span>
           </div>
-
-          <ol class="project-accordion-list reveal">
-            {projects.map((project, index) => {
-              const slug = getEntrySlug(project);
-              const triggerId = `project-${slug}-trigger`;
-              const panelId = `project-${slug}-panel`;
-              const isActive = index === 0;
-
-              return (
-                <li class:list={["project-accordion-item", { "is-active": isActive }]} data-project-item>
-                  <button
-                    class="project-accordion-trigger"
-                    id={triggerId}
-                    type="button"
-                    aria-expanded={isActive ? "true" : "false"}
-                    aria-controls={panelId}
-                    data-project-trigger
-                    data-project-index={index}
-                  >
-                    <span class="project-accordion-number">{String(index + 1).padStart(2, "0")}.</span>
-                    <span class="project-accordion-title">{project.data.title}</span>
-                  </button>
-                  <div
-                    class="project-accordion-panel"
-                    id={panelId}
-                    role="region"
-                    aria-labelledby={triggerId}
-                    aria-hidden={isActive ? "false" : "true"}
-                    data-project-panel
-                  >
-                    <div class="project-accordion-panel-inner" data-project-panel-inner>
-                      <div class="project-accordion-copy">
-                        <p class="project-accordion-summary">{project.data.summary}</p>
-                        <a class="project-accordion-link" href={`/projects/${slug}/`}>
-                          查看完整项目复盘 <span aria-hidden="true">↗</span>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
         </div>
       </div>
     </section>
 
-    <section class="event-horizon-section" aria-label="Event horizon manifesto">
-      <div class="event-horizon-inner">
-        <p
-          class="event-horizon-copy is-flicker-paused"
-          data-flicker-text
-          data-flicker-on-view
-        >We are past the event horizon;<br />the takeoff has started.</p>
-      </div>
-      <canvas
-        class="event-horizon-particles"
-        data-event-horizon-field
-        aria-hidden="true"
-      ></canvas>
-    </section>
-
-    <section class="section thinking-section" id="thinking">
-      <div class="container sec-grid thinking-layout">
-        <header class="thinking-heading reveal">
-          <h2
-            class="thinking-title is-flicker-paused"
-            data-flicker-text
-            data-flicker-on-view
-          >Thinking</h2>
-          <a class="projects-all-link thinking-all-link" href="/blog/">查看全部文章 &rarr;</a>
-        </header>
-        <ul class="post-list thinking-list" aria-label="最近发布的 5 篇文章">
-          {recentPosts.map((post) => (
-            <li>
-              <a class="post-row reveal" href={`/blog/${getEntrySlug(post)}/`}>
-                <time class="post-date" datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
-                <div>
-                  <h3 class="post-title">{post.data.title}</h3>
-                  <p class="post-desc">{post.data.description}</p>
-                </div>
-                <span class="post-arr" aria-hidden="true">&rarr;</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-
-    <section class="section" id="contact">
-      <div class="container sec-grid contact-layout">
-        <aside class="sec-rail reveal">
-          <h2 class="contact-title is-flicker-paused" data-flicker-text data-flicker-on-view>Contact</h2>
-          <p class="about-skill-label contact-info-label">[ INFO ]</p>
-          <p class="contact-intro">Open to AI products, writing, and good questions.</p>
-        </aside>
-        <dl class="social-list reveal reveal-delay" aria-label="社交与自媒体账号">
+    <section class="life-section life-contact-section" id="contact">
+      <div class="life-container life-contact-grid">
+        <div class="life-contact-heading reveal">
+          <p class="life-eyebrow">CONTACT</p>
+          <h2>保持联系。</h2>
+          <p class="life-contact-note">Open to AI products, writing,<br />and good questions.</p>
+        </div>
+        <dl class="life-socials reveal" aria-label="社交与自媒体账号">
           <div>
             <dt>GitHub</dt>
-            <dd><a href="https://github.com/nanzhi84" target="_blank" rel="noopener noreferrer">nanzhi84</a></dd>
+            <dd><a href="https://github.com/nanzhi84" target="_blank" rel="noopener noreferrer">nanzhi84 <span class="life-arrow" aria-hidden="true">↗</span></a></dd>
           </div>
           <div><dt>微信公众号</dt><dd>釉蓝yoryon</dd></div>
           <div>
             <dt>小红书</dt>
-            <dd><a href="https://www.xiaohongshu.com/user/profile/649ade98000000001001d1dc" target="_blank" rel="noopener noreferrer">釉蓝yoryon</a></dd>
+            <dd><a href="https://www.xiaohongshu.com/user/profile/649ade98000000001001d1dc" target="_blank" rel="noopener noreferrer">釉蓝yoryon <span class="life-arrow" aria-hidden="true">↗</span></a></dd>
           </div>
           <div>
             <dt>抖音</dt>
-            <dd><a href="https://www.douyin.com/user/MS4wLjABAAAAKYi5Z7LC-1B1YgY8kYdN2DrKqwtdTvZ4I0lodLekyOs" target="_blank" rel="noopener noreferrer">釉蓝yoryon</a></dd>
+            <dd><a href="https://www.douyin.com/user/MS4wLjABAAAAKYi5Z7LC-1B1YgY8kYdN2DrKqwtdTvZ4I0lodLekyOs" target="_blank" rel="noopener noreferrer">釉蓝yoryon <span class="life-arrow" aria-hidden="true">↗</span></a></dd>
           </div>
         </dl>
       </div>
@@ -276,5 +77,6 @@ const projects = (await getCollection("projects"))
 
   <script>
     import "../scripts/home-smooth-scroll";
+    import "../scripts/life-clock";
   </script>
 </SiteShell>

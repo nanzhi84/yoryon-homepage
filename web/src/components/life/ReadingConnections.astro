@@ -1,0 +1,13 @@
+---
+import CollectionLink from "./CollectionLink.astro";
+import {getLifeGraph} from "../../lib/open-life";
+interface Props {contentId:string}
+const {contentId}=Astro.props;
+const graph=await getLifeGraph();const content=graph.contents.find(c=>c.id===contentId)!;
+const series=graph.collections.filter(c=>content.collectionIds.includes(c.id));
+const next=series.map(c=>({collection:c,content:graph.contents.find(p=>p.id===c.contentIds[c.contentIds.indexOf(contentId)+1])})).filter(x=>x.content);
+---
+<aside class="reading-context" aria-label="这篇文章的关联"><p class="archive-kicker">EVERYTHING IS CONNECTED</p>{content.nodeIds.length>0&&<section><h2>相关经历</h2>{content.nodeIds.map(id=><a href={`/nodes/${id}/`}>{graph.nodes.find(n=>n.id===id)?.title} ↗</a>)}</section>}{content.topicIds.length>0&&<section><h2>主题</h2>{content.topicIds.map(id=><a href={`/topics/${id}/`}>{graph.topics.find(t=>t.id===id)?.title} ↗</a>)}</section>}{series.length>0&&<section><h2>收录于</h2>{series.map(c=><a href={`/collections/${c.id}/`}>{c.title} ↗</a>)}</section>}<a href="/#timeline">探索人生时间线 ↗</a></aside>
+<section class="reading-continuation"><p class="archive-kicker">THE STORY GOES ON</p><h2>思考，还会通向下一站。</h2>{next.length?next.map(item=><div><p>{item.collection.title} · 下一篇</p><h3>{item.content!.title}</h3><a class="archive-button" href={item.content!.href}>{item.content!.visibility==='public'?'继续阅读':'查看试读与订阅'} ↗</a></div>):<a class="archive-text-link" href={content.topicIds[0]?`/topics/${content.topicIds[0]}/`:'/topics/'}>探索相关主题 ↗</a>}{series.map(collection=><CollectionLink collection={collection}/>)}<a class="archive-subscription-note" href="/subscribe/">想持续读下去？了解内容订阅计划 ↗</a></section>
+<script type="application/json" data-reading-context set:html={JSON.stringify({path:content.href,series:content.collectionIds}).replace(/</g,'\u003c')}/>
+<script>const context=document.querySelector('[data-reading-context]');if(context){try{const data=JSON.parse(context.textContent??'{}');data.series.forEach((id:string)=>localStorage.setItem('life-reading:'+id,data.path));}catch{}}</script>

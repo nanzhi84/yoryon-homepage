@@ -97,9 +97,8 @@ function handleAnchorClick(event: MouseEvent) {
     window.history.pushState(null, "", hash);
   }
 
-  lenis.scrollTo(target, {
-    duration: 1.5,
-  });
+  // Lenis reads scroll-margin-top from the target, matching native anchor links.
+  lenis.scrollTo(target, { duration: 1.5 });
 }
 
 function removeListeners() {

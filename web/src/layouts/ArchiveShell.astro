@@ -1,0 +1,9 @@
+---
+import SiteShell from "./SiteShell.astro";
+import ExploreNav from "../components/life/ExploreNav.astro";
+interface Props {title:string;description:string;active?:"timeline"|"projects"|"topics"|"collections";variant?:string}
+const {title,description,active,variant=""}=Astro.props;
+---
+<SiteShell title={`${title} | 开源我的人生`} description={description} activeNav="life" bodyClass={`life-archive-page reference-layout ${variant}`}>
+ <main class="archive-main life-container">{active&&<ExploreNav active={active}/>}<slot/></main>
+</SiteShell>

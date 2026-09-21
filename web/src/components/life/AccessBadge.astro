@@ -1,0 +1,6 @@
+---
+import type {Visibility} from "../../data/open-life";
+interface Props {visibility?: Visibility}
+const {visibility="public"}=Astro.props;
+---
+<span class="access-badge" data-access={visibility}>{visibility==='public'?'公开':visibility==='preview'?'可试读':'订阅篇章'}</span>

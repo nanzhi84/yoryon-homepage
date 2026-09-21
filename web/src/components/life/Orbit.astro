@@ -1,0 +1,16 @@
+---
+const {small=false}=Astro.props;
+// Deterministic fine-grain orbital dust. The same artwork scales for headers and series.
+let seed=41126;
+const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
+const particles=Array.from({length:small?550:1400},(_,i)=>{
+ const r=18+Math.pow(random(),.85)*210;
+ const angle=r*.07+(i%3)*Math.PI*2/3+(random()-.5)*.4;
+ const detached=i%5===0;
+ return {x:Math.cos(angle)*r+(random()-.5)*(detached?70:8),y:Math.sin(angle)*r*.36+(random()-.5)*(detached?75:7),r:random()<.035?1.2:.35+random()*.42,opacity:.12+random()*.47};
+});
+---
+<div class:list={["archive-orbit",{small}]} aria-hidden="true"><svg viewBox="0 0 600 350" fill="none"><g transform="translate(300 175) rotate(-22)">
+ {particles.map(p=><circle cx={p.x} cy={p.y} r={p.r} opacity={p.opacity} fill="currentColor"/>)}
+ {[12,18,25,34,45,62,90,120,165,210,245].map(r=><ellipse rx={r} ry={r*.36} stroke="currentColor" stroke-width=".8" stroke-dasharray=".6 3" opacity=".5"/>)}
+ </g></svg></div>

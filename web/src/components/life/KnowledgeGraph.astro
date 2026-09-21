@@ -1,0 +1,16 @@
+---
+export interface GraphNode {id:string;title:string;summary?:string;href:string;x:number;y:number;side?:"left"|"right";kind?:string}
+interface Props {title:string;href:string;nodes:GraphNode[];variant?:"topic"|"project";label?:string}
+const {title,href,nodes,variant="topic",label="内容关联图"}=Astro.props;
+---
+<section class:list={["knowledge-graph",`knowledge-${variant}`]} data-knowledge-graph aria-label={label}>
+ <svg class="knowledge-edges" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true">
+  {nodes.map(node=><path data-graph-edge data-from="center" data-to={node.id} data-bend={node.side==='left'?-1:1} d={`M500 250 Q${node.x*10} 250 ${node.x*10} ${node.y*5}`}/>)}
+  {variant==='project'&&<ellipse class="graph-orbit" cx="500" cy="250" rx="260" ry="100" transform="rotate(-18 500 250)"/>}
+ </svg>
+ <a class="knowledge-center" href={href} data-graph-node="center"><span class="graph-dot" aria-hidden="true"></span>{title}</a>
+ {nodes.map((node,index)=><a class:list={["knowledge-node",`align-${node.side??'right'}`,{"is-featured":index===0}]} style={`--x:${node.x}%;--y:${node.y}%;`} href={node.href} data-graph-node={node.id}>
+  <span class="graph-dot" aria-hidden="true"></span><span class="knowledge-label">{node.kind&&<small>{node.kind}</small>}<strong>{node.title}</strong>{node.summary&&<span class="knowledge-description">{node.summary}</span>}<span class="knowledge-open">{variant==='topic'?'阅读文章':'继续探索'} ↗</span></span>
+ </a>)}
+</section>
+<script>import "../../scripts/knowledge-graph";</script>

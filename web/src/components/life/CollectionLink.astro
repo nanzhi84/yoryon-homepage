@@ -1,0 +1,7 @@
+---
+import Orbit from "./Orbit.astro";
+import type {ReadingCollection} from "../../data/open-life";
+interface Props {collection: ReadingCollection}
+const {collection}=Astro.props;
+---
+<a class="collection-link" href={`/collections/${collection.id}/`}><Orbit small/><div><h3>{collection.title}</h3><p>{collection.summary}</p><span class="archive-text-link">{collection.contentIds.length?`${collection.contentIds.length} 篇 · 进入系列`:'正在整理 · 查看系列'} ↗</span></div></a>

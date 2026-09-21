@@ -1,0 +1,48 @@
+---
+import SiteShell from "../../layouts/SiteShell.astro";
+import { lifeJournals } from "../../data/life-journals";
+
+export function getStaticPaths() {
+  return lifeJournals.map((journal) => ({
+    params: { slug: journal.slug },
+    props: { journal },
+  }));
+}
+
+const { journal } = Astro.props;
+---
+
+<SiteShell title={journal.title + " | 开源我的人生"} description={journal.summary} activeNav="life" bodyClass="life-journal-page" particleBackground>
+  <main class="journal-main life-container">
+    <div class="life-breadcrumb"><a href="/">开源我的人生</a><span aria-hidden="true"> / </span>{journal.title}</div>
+    <section class="journal-hero">
+      <div>
+        <p class="life-eyebrow">JOURNAL {journal.number} / AN OPEN LIFE</p>
+        <h1>{journal.slug === "ai-pm-internship" ? <><span>第一次 AI PM</span><span>实习日记</span></> : journal.title}</h1>
+        <p class="journal-hero-summary">{journal.summary}</p>
+      </div>
+      <aside class="journal-aside">
+        <p class="life-eyebrow">A WORK IN PROGRESS</p>
+        <p>{journal.description}</p>
+        <a class="life-text-link" href={"/collections/" + journal.slug + "/"}>进入阅读系列 <span aria-hidden="true">→</span></a>
+      </aside>
+    </section>
+    <section class="journal-entries" aria-labelledby="journal-entries-title">
+      <header class="journal-entries-heading">
+        <h2 id="journal-entries-title">全部记录</h2>
+        <span class="journal-state">正在整理</span>
+      </header>
+      <div class="journal-empty">
+        <h3>沿着这个系列，继续探索。</h3><a class="archive-text-link" href={"/collections/" + journal.slug + "/"}>进入新版系列页 ↗</a>
+        <p>这里还没有发布的记录。整理完成后，会在这里按时间更新。</p>
+        <a class="life-text-link" href="/blog/">先看看我最近的思考 <span aria-hidden="true">↗</span></a>
+      </div>
+    </section>
+    <nav class="journal-switcher" aria-label="其他栏目">
+      {lifeJournals.filter((entry) => entry.slug !== journal.slug).map((entry) => (
+        <a class="life-text-link" href={"/life/" + entry.slug + "/"}>{entry.title}<span aria-hidden="true">↗</span></a>
+      ))}
+      <a class="life-text-link" href="/">返回开源我的人生 <span aria-hidden="true">→</span></a>
+    </nav>
+  </main>
+</SiteShell>

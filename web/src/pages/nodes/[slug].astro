@@ -1,0 +1,23 @@
+---
+import ArchiveShell from "../../layouts/ArchiveShell.astro";
+import PhaseTrack from "../../components/life/PhaseTrack.astro";
+import Orbit from "../../components/life/Orbit.astro";
+import ContentLink from "../../components/life/ContentLink.astro";
+import CollectionLink from "../../components/life/CollectionLink.astro";
+import {getLifeGraph} from "../../lib/open-life";
+import {nodeLabels} from "../../data/open-life";
+export async function getStaticPaths(){const graph=await getLifeGraph();return graph.nodes.map(node=>({params:{slug:node.id},props:{node,graph}}))}
+const {node,graph}=Astro.props;
+const related=graph.contents.filter(c=>c.nodeIds.includes(node.id));
+const series=graph.collections.filter(c=>c.nodeIds.includes(node.id));
+const isDuration=node.type==='phase'||node.type==='project';
+const period=node.startDate ? node.startDate.replace(/-/g,'.')+(isDuration ? ` — ${node.endDate?.replace(/-/g,'.')??(node.status==='ongoing'?'至今':'结束时间待补充')}` : '') : '起止时间待补充';
+---
+<ArchiveShell variant="reference-node" title={node.title} description={node.summary}>
+ <a class="archive-back" href="/#timeline">← 人生时间线</a>
+ <header class="archive-page-heading"><Orbit/><p class="archive-kicker">A CHAPTER OF LIFE</p><h1>{node.title} <span class="access-badge">{nodeLabels[node.type]}</span></h1><p>{period}</p><p class="archive-summary">{node.summary}</p></header>
+ {isDuration&&<PhaseTrack startDate={node.startDate} endDate={node.endDate} status={node.status}/>}
+ {node.projectId&&<a class="archive-button" href={`/projects/${node.projectId}/`}>查看完整项目 ↗</a>}
+ <div class="archive-two-columns"><section><h2>这段经历中的内容</h2><p class="archive-muted">与这段经历有关的记录与思考。</p>{related.length?related.map(content=><ContentLink content={content}/>):<div class="archive-empty"><h3>记录正在整理。</h3><p>新的文章发布后，会在这里与这段经历相连。</p><a href="/topics/agent/">先探索关于 Agent 的思考 ↗</a></div>}</section>
+ <section><h2>按顺序读这段经历</h2>{series.length?series.map(collection=><CollectionLink collection={collection}/>):<div class="archive-empty"><p>这段经历还没有整理成系列。</p><a href="/collections/">探索其他系列 ↗</a></div>}</section></div>
+</ArchiveShell>

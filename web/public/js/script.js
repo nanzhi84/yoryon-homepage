@@ -23,19 +23,35 @@ if (!('IntersectionObserver' in window)) {
   const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
 
   if (sections.length && navLinks.length) {
-    const navObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          navLinks.forEach((link) => link.classList.remove('is-active'));
-          const activeLink = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
-          if (activeLink) activeLink.classList.add('is-active');
-        }
+    let navFrame = 0;
+    function updateActiveSection() {
+      navFrame = 0;
+      let currentSection = sections[0];
+      const atBottom = window.scrollY > 0
+        && document.documentElement.scrollHeight - window.innerHeight - window.scrollY <= 4;
+      if (atBottom) {
+        currentSection = sections[sections.length - 1];
+      } else {
+        sections.forEach((section) => {
+          if (section.getBoundingClientRect().top <= window.innerHeight * .35) {
+            currentSection = section;
+          }
+        });
+      }
+      const sectionId = ['about', 'contact'].includes(currentSection.id) ? currentSection.id : 'home';
+      navLinks.forEach((link) => {
+        const isActive = link.getAttribute('href') === '#' + sectionId;
+        link.classList.toggle('is-active', isActive);
+        if (isActive) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
       });
-    }, {
-      threshold: 0.45
-    });
-
-    sections.forEach((section) => navObserver.observe(section));
+    }
+    function queueNavUpdate() {
+      if (!navFrame) navFrame = window.requestAnimationFrame(updateActiveSection);
+    }
+    window.addEventListener('scroll', queueNavUpdate, { passive: true });
+    window.addEventListener('resize', queueNavUpdate);
+    updateActiveSection();
   }
 }
 
@@ -800,25 +816,110 @@ if (particleCanvas) {
 const eventHorizonCanvas = document.querySelector('[data-event-horizon-field]');
 
 /*
- * 深色过渡区使用 nirnor.jp 同款 20 x 20 x 20 三维点阵：
- * 8000 个白色方形点绕三个轴同步旋转，并每 500 次更新在 1x / 10x 尺度间切换。
- * 这里用原生 WebGL 复现 Three.js PointsMaterial 的透视尺寸衰减，避免额外运行时依赖。
+ * Native WebGL point clouds: a spiral galaxy for the subscription section,
+ * with the original rotating grid retained for canvases without a pattern.
  */
 function initEventHorizonField(canvas) {
+  const isGalaxy = canvas.dataset.particlePattern === 'galaxy';
   const GRID_SIZE = 20;
   const GRID_SPACING = 1;
   const BASE_SCALE = 15;
   const POINT_SIZE = 3;
-  const UPDATE_RATE = 90;
+  const UPDATE_RATE = isGalaxy ? 60 : 90;
   const UPDATE_INTERVAL = 1000 / UPDATE_RATE;
-  const ROTATION_STEP = Math.PI / 180 / 10;
+  const ROTATION_STEP = Math.PI / 180 / (isGalaxy ? 40 : 10);
   const HALF_FOV = Math.PI / 8;
   const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const pointCount = GRID_SIZE ** 3;
+  const pointCount = isGalaxy ? 24000 : GRID_SIZE ** 3;
   const positions = new Float32Array(pointCount * 3);
+  const stars = isGalaxy ? new Float32Array(pointCount * 3) : null;
+  // The disk normal projects toward the upper left; its major axis rises right.
+  const galaxyTiltX = -1.12;
+  const galaxyTiltY = -.4;
   let cursor = 0;
 
-  for (let zIndex = 0; zIndex < GRID_SIZE; zIndex += 1) {
+  if (isGalaxy) {
+    const random = createSeededRandom(20041126);
+    const gaussian = () => Math.sqrt(-2 * Math.log(Math.max(random(), 1e-6))) * Math.cos(random() * Math.PI * 2);
+    const smoothstep = (low, high, value) => {
+      const t = Math.max(0, Math.min(1, (value - low) / (high - low)));
+      return t * t * (3 - 2 * t);
+    };
+    for (let index = 0; index < pointCount; index += 1) {
+      const population = random();
+      let radius;
+      let angle;
+      let height;
+      let brightness;
+      let glow = 0;
+      let size = 1 + Math.pow(random(), 4) * 1.1;
+      if (population < .32) {
+        // Fine orbital traces retain a readable silhouette through darker cloud patches.
+        const progress = Math.pow(random(), .8);
+        const strand = Math.floor(random() * 3);
+        radius = .5 + progress * 11.8 + gaussian() * .035;
+        angle = progress * Math.PI * 17 + strand * Math.PI * 2 / 3;
+        height = gaussian() * (.025 + progress * .025);
+        brightness = (.27 + Math.pow(random(), 2) * .55)
+          * (1 - smoothstep(10, 14, radius));
+      } else if (population < .66) {
+        // Sample actual concentrations along two irregular ribbons, not just brighter rings.
+        const ridge = random() < .58 ? 0 : 1;
+        const knot = random();
+        const center = knot < .5 ? .68 : knot < .8 ? .38 : .9;
+        const progress = Math.max(.04, Math.min(.98, center + gaussian() * (knot < .5 ? .13 : .085)));
+        angle = ridge * Math.PI + .65 + progress * Math.PI * 1.72;
+        const spineRadius = 3.1 + progress * 6.8 + Math.sin(angle * 2.4) * .24;
+        const denseSpine = random() < .25;
+        const spread = denseSpine ? .13 : .3 + random() * .4;
+        const filament = denseSpine ? (Math.floor(random() * 5) - 2) * .13 : 0;
+        radius = spineRadius + filament + gaussian() * spread;
+        angle += gaussian() * (denseSpine ? .025 : .06);
+        height = gaussian() * (denseSpine ? .075 : .24);
+        brightness = (denseSpine ? .55 + random() * .45 : .15 + random() * .4)
+          * (1 - smoothstep(8.5, 12.5, radius));
+        if (denseSpine && random() < .03) {
+          glow = 1;
+          size = 4 + random() * 3;
+          brightness = .65 + random() * .35;
+        }
+      } else if (population < .78) {
+        // A diffuse disk softens the gaps between the dense ribbons.
+        radius = .8 + Math.min(14, Math.abs(gaussian()) * 5.1);
+        angle = random() * Math.PI * 2;
+        height = gaussian() * (.12 + radius * .055);
+        brightness = (.1 + random() * .25) * (1 - smoothstep(5, 15, radius));
+      } else {
+        // Detached particles occupy a thicker volume and fade into the background.
+        radius = 5 + Math.pow(random(), .8) * 25;
+        angle = random() * Math.PI * 2;
+        height = gaussian() * (2 + radius * .16);
+        const distance = Math.hypot(radius, height * 1.5);
+        brightness = (.18 + Math.pow(random(), 3) * .8)
+          * (1 - smoothstep(15, 34, distance));
+        size = 1.2 + Math.pow(random(), 5) * 1.5;
+      }
+      // Unequal cloud patches interrupt the ribbons with deep gaps and bright knots.
+      if (population < .78) {
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        const cloud = Math.sin(x * .63 + Math.sin(y * .47) * 1.8)
+          + .65 * Math.sin(y * 1.13 - x * .27 + 2.1)
+          + .35 * Math.sin(x * 1.71 + y * .83);
+        const contrast = .12 + 1.5 * Math.pow(smoothstep(-1.25, 1.3, cloud), 2);
+        // Keep the thin spiral scaffold visible while cloud ribbons retain deep shadows.
+        const structureContrast = population < .32 ? .65 + contrast * .45 : contrast;
+        brightness = Math.min(1, brightness * structureContrast);
+      }
+      positions[cursor] = Math.cos(angle) * radius;
+      positions[cursor + 1] = Math.sin(angle) * radius;
+      positions[cursor + 2] = height;
+      stars[index * 3] = size;
+      stars[index * 3 + 1] = brightness;
+      stars[index * 3 + 2] = glow;
+      cursor += 3;
+    }
+  } else for (let zIndex = 0; zIndex < GRID_SIZE; zIndex += 1) {
     for (let yIndex = 0; yIndex < GRID_SIZE; yIndex += 1) {
       for (let xIndex = 0; xIndex < GRID_SIZE; xIndex += 1) {
         positions[cursor] = xIndex * GRID_SPACING - GRID_SIZE * GRID_SPACING / 2;
@@ -833,8 +934,8 @@ function initEventHorizonField(canvas) {
   let height = 0;
   let dpr = 1;
   let responsiveScale = BASE_SCALE;
-  let rotationX = 0;
-  let rotationY = 0;
+  let rotationX = isGalaxy ? galaxyTiltX : 0;
+  let rotationY = isGalaxy ? galaxyTiltY : 0;
   let rotationZ = 0;
   let animationCount = 0;
   let animationScale = 1;
@@ -857,6 +958,7 @@ function initEventHorizonField(canvas) {
   if (gl) {
     const vertexSource = [
       'attribute vec3 a_position;',
+      isGalaxy ? 'attribute vec3 a_star; varying mediump vec2 v_light;' : '',
       'uniform vec2 u_viewport;',
       'uniform vec3 u_rotation;',
       'uniform float u_object_scale;',
@@ -865,12 +967,14 @@ function initEventHorizonField(canvas) {
       'void main() {',
       '  vec3 point = a_position * u_object_scale;',
       '',
-      '  float cosRotation = cos(u_rotation.x);',
-      '  float sinRotation = sin(u_rotation.x);',
+      '  float cosRotation = cos(u_rotation.z);',
+      '  float sinRotation = sin(u_rotation.z);',
       '  point = vec3(point.x * cosRotation - point.y * sinRotation, point.x * sinRotation + point.y * cosRotation, point.z);',
       '',
+      '  cosRotation = cos(u_rotation.y); sinRotation = sin(u_rotation.y);',
       '  point = vec3(point.x * cosRotation + point.z * sinRotation, point.y, -point.x * sinRotation + point.z * cosRotation);',
       '',
+      '  cosRotation = cos(u_rotation.x); sinRotation = sin(u_rotation.x);',
       '  point = vec3(point.x, point.y * cosRotation - point.z * sinRotation, point.y * sinRotation + point.z * cosRotation);',
       '',
       '  float focal = 1.0 / tan(0.3926990817);',
@@ -883,18 +987,26 @@ function initEventHorizonField(canvas) {
       '    + ((2.0 * farPlane * nearPlane) / (nearPlane - farPlane));',
       '',
       '  gl_Position = vec4(point.x * focal / aspect, point.y * focal, clipZ, -viewZ);',
-      '  gl_PointSize = viewZ < -nearPlane',
-      '    ? max(1.0, 3.0 * u_pixel_ratio * ((u_viewport.y * 0.5) / -viewZ))',
-      '    : 0.0;',
+      isGalaxy
+        ? '  gl_PointSize = max(1.0, a_star.x * u_pixel_ratio * cameraZ / -viewZ); v_light = a_star.yz;'
+        : '  gl_PointSize = viewZ < -nearPlane ? max(1.0, 3.0 * u_pixel_ratio * ((u_viewport.y * 0.5) / -viewZ)) : 0.0;',
       '}'
     ].join('\n');
 
-    const fragmentSource = [
+    const fragmentSource = isGalaxy ? [
       'precision mediump float;',
-      '',
+      'varying mediump vec2 v_light;',
       'void main() {',
-      '  gl_FragColor = vec4(1.0);',
+      '  float radius = length(gl_PointCoord - vec2(0.5));',
+      '  if (radius > 0.5) discard;',
+      '  float point = 1.0 - smoothstep(0.08, 0.5, radius);',
+      '  float halo = exp(-radius * radius * 64.0) + 0.12 * exp(-radius * radius * 12.0);',
+      '  float alpha = min(1.0, mix(point, halo, v_light.y) * v_light.x);',
+      '  gl_FragColor = vec4(vec3(alpha), alpha);',
       '}'
+    ].join('\n') : [
+      'precision mediump float;',
+      'void main() { gl_FragColor = vec4(1.0); }'
     ].join('\n');
 
     function compileShader(type, source) {
@@ -953,7 +1065,19 @@ function initEventHorizonField(canvas) {
     gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
-    gl.disable(gl.BLEND);
+    if (isGalaxy) {
+      const starLocation = gl.getAttribLocation(program, 'a_star');
+      const starBuffer = gl.createBuffer();
+      if (starLocation < 0 || !starBuffer) return;
+      gl.bindBuffer(gl.ARRAY_BUFFER, starBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, stars, gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(starLocation);
+      gl.vertexAttribPointer(starLocation, 3, gl.FLOAT, false, 0, 0);
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.ONE, gl.ONE);
+    } else {
+      gl.disable(gl.BLEND);
+    }
     gl.clearColor(0, 0, 0, 0);
 
     drawScene = () => {
@@ -977,7 +1101,7 @@ function initEventHorizonField(canvas) {
         return;
       }
 
-      const responsiveScale = Math.min(window.innerWidth / 1440, 1) * BASE_SCALE * animationScale;
+      const sceneScale = responsiveScale * animationScale;
       const focal = 1 / Math.tan(HALF_FOV);
       const cameraZ = height * 0.5 * focal;
       const cosX = Math.cos(rotationX);
@@ -989,11 +1113,12 @@ function initEventHorizonField(canvas) {
 
       ctx.clearRect(0, 0, width, height);
       ctx.fillStyle = '#fff';
+      ctx.globalCompositeOperation = isGalaxy ? 'lighter' : 'source-over';
       for (let index = 0; index < pointCount; index += 1) {
         const offset = index * 3;
-        const baseX = positions[offset] * responsiveScale;
-        const baseY = positions[offset + 1] * responsiveScale;
-        const baseZ = positions[offset + 2] * responsiveScale;
+        const baseX = positions[offset] * sceneScale;
+        const baseY = positions[offset + 1] * sceneScale;
+        const baseZ = positions[offset + 2] * sceneScale;
         const zRotatedX = baseX * cosZ - baseY * sinZ;
         const zRotatedY = baseX * sinZ + baseY * cosZ;
         const yRotatedX = zRotatedX * cosY + baseZ * sinY;
@@ -1008,9 +1133,22 @@ function initEventHorizonField(canvas) {
         const perspective = cameraZ / depth;
         const screenX = width * 0.5 + yRotatedX * perspective;
         const screenY = height * 0.5 - xRotatedY * perspective;
-        const size = Math.max(0.5, POINT_SIZE * (height * 0.5) / depth);
+        const size = isGalaxy
+          ? stars[index * 3] * perspective
+          : Math.max(0.5, POINT_SIZE * (height * 0.5) / depth);
+        ctx.globalAlpha = isGalaxy ? stars[index * 3 + 1] : 1;
         if (screenX >= -size && screenX <= width + size && screenY >= -size && screenY <= height + size) {
-          ctx.fillRect(screenX - size * 0.5, screenY - size * 0.5, size, size);
+          if (isGalaxy && stars[index * 3 + 2]) {
+            const glowGradient = ctx.createRadialGradient(screenX, screenY, 0, screenX, screenY, size * .5);
+            glowGradient.addColorStop(0, '#fff');
+            glowGradient.addColorStop(.22, 'rgba(255, 255, 255, .6)');
+            glowGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = glowGradient;
+            ctx.fillRect(screenX - size * .5, screenY - size * .5, size, size);
+            ctx.fillStyle = '#fff';
+          } else {
+            ctx.fillRect(screenX - size * .5, screenY - size * .5, size, size);
+          }
         }
       }
     };
@@ -1027,7 +1165,9 @@ function initEventHorizonField(canvas) {
     width = nextWidth;
     height = nextHeight;
     dpr = nextDpr;
-    responsiveScale = Math.min(window.innerWidth / 1440, 1) * BASE_SCALE;
+    responsiveScale = isGalaxy
+      ? Math.min(width / 29, height / 22)
+      : Math.min(window.innerWidth / 1440, 1) * BASE_SCALE;
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
     if (gl) {
@@ -1044,11 +1184,16 @@ function initEventHorizonField(canvas) {
   }
 
   function advanceScene() {
+    if (isGalaxy) {
+      // Spin within a fixed disk plane so the spiral never turns edge-on.
+      rotationZ = (rotationZ + ROTATION_STEP) % (Math.PI * 2);
+      return;
+    }
     rotationX = rotationX > Math.PI * 2 ? 0 : rotationX + ROTATION_STEP;
     rotationY = rotationY > Math.PI * 2 ? 0 : rotationY + ROTATION_STEP;
     rotationZ = rotationZ > Math.PI * 2 ? 0 : rotationZ + ROTATION_STEP;
     animationCount = animationCount > 1000 ? 0 : animationCount + 1;
-    animationScale = animationCount < 500 ? 1 : 10;
+    animationScale = isGalaxy ? 1 : animationCount < 500 ? 1 : 10;
   }
 
   function frame(now) {
@@ -1070,15 +1215,15 @@ function initEventHorizonField(canvas) {
 
     lastUpdateTime = 0;
     if (reduceMotionQuery.matches) {
-      rotationX = 0;
-      rotationY = 0;
+      rotationX = isGalaxy ? galaxyTiltX : 0;
+      rotationY = isGalaxy ? galaxyTiltY : 0;
       rotationZ = 0;
       animationCount = 0;
       animationScale = 1;
       if (isCanvasVisible) {
         drawScene();
       }
-    } else if (!document.hidden) {
+    } else if (!document.hidden && isCanvasVisible) {
       frameId = window.requestAnimationFrame(frame);
     }
   }
@@ -1110,6 +1255,7 @@ function initEventHorizonField(canvas) {
         if (isCanvasVisible) {
           drawScene();
         }
+        syncAnimation();
       });
     }, { rootMargin: '200px 0px' });
     visibilityObserver.observe(canvas);

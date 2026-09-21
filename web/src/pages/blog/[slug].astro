@@ -1,6 +1,10 @@
 ---
 import "katex/dist/katex.min.css";
 import { getCollection, render } from "astro:content";
+import SubscriptionGate from "../../components/life/SubscriptionGate.astro";
+import ReadingConnections from "../../components/life/ReadingConnections.astro";
+import AccessBadge from "../../components/life/AccessBadge.astro";
+import {getLifeGraph, slugOf} from "../../lib/open-life";
 import SiteShell from "../../layouts/SiteShell.astro";
 
 export async function getStaticPaths() {
@@ -15,7 +19,10 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { Content } = await render(post);
+const graph = await getLifeGraph();
+const entry = graph.contents.find(c=>c.id===slugOf(post))!;
+const rendered = entry.visibility === "public" ? await render(post) : null;
+const Content = rendered?.Content;
 // frontmatter 裸日期按 UTC 午夜解析，格式化必须用 UTC 取值，否则西半球时区会提前一天
 const formattedDate = post.data.pubDate.toISOString().slice(0, 10);
 ---
@@ -24,19 +31,20 @@ const formattedDate = post.data.pubDate.toISOString().slice(0, 10);
   title={`${post.data.title} | Yoryon`}
   description={post.data.description}
   activeNav="thinking"
-  bodyClass="content-detail-page"
+  bodyClass="content-detail-page archive-reading-page"
 >
   <main class="post-main container">
     <article class="post-shell reveal">
-      <a class="back-link" href="/blog/">← 返回 Thinking</a>
+      <a class="back-link" href="/explore/">← 探索全部内容</a>
       <header class="post-header">
         <p class="post-meta">{post.data.category} · {formattedDate} · {post.data.readingTime}</p>
-        <h1>{post.data.title}</h1>
+        <h1>{post.data.title}</h1><AccessBadge visibility={entry.visibility}/>
         <p>{post.data.description}</p>
       </header>
       <div class="post-content">
-        <Content />
+        {Content ? <Content /> : <SubscriptionGate preview={entry.preview}/>}
       </div>
+      <ReadingConnections contentId={entry.id}/>
     </article>
   </main>
 </SiteShell>

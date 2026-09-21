@@ -1,0 +1,9 @@
+---
+import ArchiveShell from "../layouts/ArchiveShell.astro";
+import ContentLink from "../components/life/ContentLink.astro";
+import {getLifeGraph} from "../lib/open-life";
+const graph=await getLifeGraph();
+---
+<ArchiveShell title="探索全部内容" description="搜索文章、人生节点、项目与系列。"><a class="archive-back" href="/#timeline">← 回到探索</a><header class="archive-page-heading"><h1>从一个好奇的问题开始。</h1></header><label class="explore-input">搜索文章、经历、项目或系列<input type="search" id="life-search" placeholder="试试 Agent、工具、实习…" autocomplete="off"/></label><p id="search-count" class="archive-muted" role="status" aria-live="polite"></p><div id="search-results">{graph.contents.map(content=><div data-search={`${content.title} ${content.summary}`}><ContentLink content={content}/></div>)}{graph.nodes.map(node=><a data-search={`${node.title} ${node.summary}`} class="search-entity" href={`/nodes/${node.id}/`}><small>人生节点</small><h2>{node.title}</h2><span>↗</span></a>)}{graph.collections.map(c=><a data-search={`${c.title} ${c.summary}`} class="search-entity" href={`/collections/${c.id}/`}><small>系列</small><h2>{c.title}</h2><span>↗</span></a>)}</div><p id="search-empty" hidden>没有找到相关内容，换一个关键词试试。</p><script>
+const input=document.querySelector<HTMLInputElement>('#life-search');const entries=[...document.querySelectorAll<HTMLElement>('[data-search]')];function filter(){const q=input?.value.trim().toLowerCase()??'';let count=0;entries.forEach(el=>{el.hidden=!el.dataset.search?.toLowerCase().includes(q);if(!el.hidden)count++});document.querySelector('#search-count')!.textContent=`找到 ${count} 条内容`;document.querySelector<HTMLElement>('#search-empty')!.hidden=count>0;}input?.addEventListener('input',filter);filter();
+</script></ArchiveShell>

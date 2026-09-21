@@ -1,0 +1,19 @@
+---
+import ArchiveShell from "../../layouts/ArchiveShell.astro";
+import KnowledgeGraph from "../../components/life/KnowledgeGraph.astro";
+import ContentLink from "../../components/life/ContentLink.astro";
+import CollectionLink from "../../components/life/CollectionLink.astro";
+import {getLifeGraph} from "../../lib/open-life";
+export async function getStaticPaths(){const graph=await getLifeGraph();return graph.topics.map(topic=>({params:{slug:topic.id},props:{topic,graph}}))}
+const {topic,graph}=Astro.props;
+const contents=graph.contents.filter(c=>c.topicIds.includes(topic.id));
+const series=graph.collections.filter(c=>c.topicIds.includes(topic.id));
+const positions=[{x:65,y:14,side:'right'},{x:70,y:49,side:'right'},{x:70,y:83,side:'right'},{x:31,y:25,side:'left'},{x:29,y:56,side:'left'},{x:35,y:88,side:'left'}];
+const graphNodes=contents.slice(0,6).map((content,index)=>({id:content.id,title:content.displayTitle,summary:content.summary,href:content.href,...positions[index]}));
+---
+<ArchiveShell variant="reference-topic" title={topic.title} description={topic.summary} active="topics"><header class="archive-page-heading"><h1>{topic.title} <span class="access-badge">跨时间的思考</span></h1><p>{topic.summary}</p></header>
+ {contents.length?<KnowledgeGraph title={topic.title} href={`/topics/${topic.id}/`} nodes={graphNodes} label={`${topic.title} 主题内容关联图`}/>:<div class="archive-empty"><h2>这个主题，正在积累。</h2><p>还没有公开文章，之后的记录会汇集在这里。</p></div>}
+ {contents.length>6&&<details class="archive-more"><summary>继续探索其余 {contents.length-6} 篇内容</summary>{contents.slice(6).map(content=><ContentLink content={content}/>)}</details>}
+ {series.length>0&&<section class="archive-section"><h2>继续系统地读</h2><div class="collection-grid">{series.map(collection=><CollectionLink collection={collection}/>)}</div></section>}
+ <nav class="related-topics" aria-label="其他主题">{graph.topics.filter(t=>t.id!==topic.id).map(t=><a href={`/topics/${t.id}/`}>{t.title} ↗</a>)}</nav>
+</ArchiveShell>
